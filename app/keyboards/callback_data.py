@@ -35,3 +35,9 @@ class SettingsCallback(CallbackData, prefix="set"):
 
     action: str  # "set_lang" | "toggle_notifications" | "home"
     value: str = ""
+
+
+class AdminCallback(CallbackData, prefix="admin"):
+    """Payload for the private admin analytics menu."""
+
+    action: str  # "overview" | "requested" | "regenerated" | "quality" | "ai" | "growth" | "close"
