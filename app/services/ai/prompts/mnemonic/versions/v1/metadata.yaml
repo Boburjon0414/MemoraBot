@@ -1,0 +1,12 @@
+# Static components assembled for EVERY mnemonic request, in this exact
+# order. (user_prompt.md and regenerate_avoid.md are intentionally NOT
+# listed here — they're request-specific templates loaded separately by
+# app/services/ai/mnemonic_prompt.py, not part of the always-static set.)
+version: v1
+description: "Mnemonic generation for MneVoca — Uzbek sound-alike + funny story"
+components:
+  - system.md
+  - constitution.md
+  - mnemonic_rules.md
+  - examples.md
+  - output_format.md
