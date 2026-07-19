@@ -18,6 +18,16 @@ class UserRepository(BaseRepository[User]):
         result = await self._session.execute(select(User).where(User.telegram_id == telegram_id))
         return result.scalar_one_or_none()
 
+    async def get_all_telegram_ids(self) -> list[int]:
+        """Return the Telegram user ID of every registered user.
+
+        Used by ``BroadcastService`` to fan out a message to the full
+        user base.  Only the IDs are fetched — not full rows — to keep
+        the payload small regardless of table size.
+        """
+        result = await self._session.execute(select(User.telegram_id))
+        return list(result.scalars().all())
+
     async def create(
         self,
         *,

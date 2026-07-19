@@ -21,6 +21,7 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.user_settings_repository import UserSettingsRepository
 from app.services.ai.base import AIProvider
 from app.services.analytics_service import AnalyticsService
+from app.services.broadcast_service import BroadcastService
 from app.services.mnemonic_feedback_service import MnemonicFeedbackService
 from app.services.mnemonic_service import MnemonicService
 from app.services.settings_service import SettingsService
@@ -31,9 +32,15 @@ from app.services.user_service import UserService
 class ServicesMiddleware(BaseMiddleware):
     """Wires repositories -> services for each update and injects the services."""
 
-    def __init__(self, ai_provider: AIProvider, free_plan_daily_generations: int) -> None:
+    def __init__(
+        self,
+        ai_provider: AIProvider,
+        free_plan_daily_generations: int,
+        broadcast_delay_ms: int,
+    ) -> None:
         self._ai_provider = ai_provider
         self._free_plan_daily_generations = free_plan_daily_generations
+        self._broadcast_delay_ms = broadcast_delay_ms
 
     async def __call__(
         self,
@@ -57,5 +64,8 @@ class ServicesMiddleware(BaseMiddleware):
             user_repo, settings_repo, daily_limit=self._free_plan_daily_generations
         )
         data["analytics_service"] = AnalyticsService(analytics_repo)
+        data["broadcast_service"] = BroadcastService(
+            user_repo, delay_ms=self._broadcast_delay_ms
+        )
 
         return await handler(event, data)

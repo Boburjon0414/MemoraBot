@@ -49,6 +49,11 @@ class Settings(BaseSettings):
     # --- Logging ----------------------------------------------------------
     log_level: str = "INFO"
 
+    # --- Broadcast ---------------------------------------------------------
+    # Inter-message delay for the admin broadcast loop.  Keeps the bot
+    # inside Telegram's rate limits when sending to many users.
+    broadcast_delay_ms: int = 50
+
     # --- Reserved for the future Admin Panel (see README) ------------------
     admin_ids: str = ""
 

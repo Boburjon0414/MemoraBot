@@ -40,4 +40,10 @@ class SettingsCallback(CallbackData, prefix="set"):
 class AdminCallback(CallbackData, prefix="admin"):
     """Payload for the private admin analytics menu."""
 
-    action: str  # "overview" | "requested" | "regenerated" | "quality" | "ai" | "growth" | "close"
+    action: str  # "overview" | "requested" | "regenerated" | "quality" | "ai" | "growth" | "broadcast" | "close"
+
+
+class BroadcastCallback(CallbackData, prefix="bcast"):
+    """Payload for the admin broadcast confirmation buttons."""
+
+    action: str  # "confirm" | "cancel"

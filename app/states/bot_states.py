@@ -19,3 +19,9 @@ class MneVocaStates(StatesGroup):
     """States for the MneVoca vocabulary-mode flow."""
 
     waiting_for_word = State()
+
+
+class BroadcastStates(StatesGroup):
+    """States for the admin broadcast composition flow."""
+
+    waiting_for_message = State()

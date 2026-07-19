@@ -6,14 +6,22 @@ authorization is deliberately checked on every command and callback.
 
 from __future__ import annotations
 
-from aiogram import F, Router
+from aiogram import Bot, F, Router
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from app.config import settings
-from app.keyboards.admin_kb import get_admin_back_keyboard, get_admin_menu_keyboard
-from app.keyboards.callback_data import AdminCallback
+from app.keyboards.admin_kb import (
+    get_admin_back_keyboard,
+    get_admin_menu_keyboard,
+    get_broadcast_confirm_keyboard,
+    get_broadcast_prompt_keyboard,
+)
+from app.keyboards.callback_data import AdminCallback, BroadcastCallback
 from app.services.analytics_service import AnalyticsService
+from app.services.broadcast_service import BroadcastService
+from app.states.bot_states import BroadcastStates
 from app.utils.admin_formatters import (
     format_admin_overview,
     format_ai_report,
@@ -115,3 +123,110 @@ async def close_admin_panel(callback: CallbackQuery) -> None:
         return
     await callback.message.delete()
     await callback.answer()
+
+
+# ── Broadcast ──────────────────────────────────────────────────────────────
+
+
+@router.callback_query(AdminCallback.filter(F.action == "broadcast"))
+async def broadcast_entry(callback: CallbackQuery, state: FSMContext) -> None:
+    """Open the broadcast composer: ask the admin to type the message text."""
+    if not _is_admin(callback.from_user.id):
+        await _deny_callback(callback)
+        return
+
+    await state.set_state(BroadcastStates.waiting_for_message)
+    await callback.message.edit_text(
+        "📢 <b>Xabar tarqatish</b>\n\n"
+        "Barcha foydalanuvchilarga yubormoqchi bo'lgan xabarni yuboring.\n\n"
+        "<i>Faqat matn xabarlari qo'llab-quvvatlanadi (V1).</i>",
+        reply_markup=get_broadcast_prompt_keyboard(),
+    )
+    await callback.answer()
+
+
+@router.message(BroadcastStates.waiting_for_message, F.text)
+async def broadcast_receive_text(message: Message, state: FSMContext) -> None:
+    """Accept the broadcast text and render a preview with confirm / cancel."""
+    if not _is_admin(message.from_user.id):
+        await state.clear()
+        return
+
+    await state.update_data(broadcast_text=message.text)
+
+    preview = (
+        "👀 <b>Ko'rinish (Preview):</b>\n\n"
+        f"{message.text}\n\n"
+        "─────────────────────\n"
+        "📤 Barcha ro'yxatdan o'tgan foydalanuvchilarga yuboriladi.\n"
+        "Tasdiqlaysizmi?"
+    )
+    await message.answer(preview, reply_markup=get_broadcast_confirm_keyboard())
+
+
+@router.message(BroadcastStates.waiting_for_message)
+async def broadcast_invalid_content(message: Message) -> None:
+    """Reject non-text content (photos, stickers, …) while composing a broadcast."""
+    if not _is_admin(message.from_user.id):
+        return
+    await message.answer(
+        "❗️ Faqat matn xabarlari qo'llab-quvvatlanadi.\n"
+        "Iltimos, matn ko'rinishida xabar yuboring."
+    )
+
+
+@router.callback_query(BroadcastCallback.filter(F.action == "confirm"))
+async def broadcast_confirm(
+    callback: CallbackQuery,
+    state: FSMContext,
+    broadcast_service: BroadcastService,
+    bot: Bot,
+) -> None:
+    """Admin confirmed: clear FSM, schedule background broadcast, show status."""
+    if not _is_admin(callback.from_user.id):
+        await _deny_callback(callback)
+        return
+
+    data = await state.get_data()
+    broadcast_text: str | None = data.get("broadcast_text")
+
+    if not broadcast_text:
+        # Guard against stale / double-tap confirm with no text in state.
+        await callback.answer(
+            "⚠️ Xabar topilmadi. Iltimos, /admin orqali qayta urinib ko'ring.",
+            show_alert=True,
+        )
+        await state.clear()
+        return
+
+    admin_id = callback.from_user.id
+    await state.clear()
+
+    total = await broadcast_service.start_broadcast(bot, broadcast_text, admin_id)
+
+    await callback.message.edit_text(
+        "📢 <b>Broadcast boshlandi!</b>\n\n"
+        f"📊 Jami <b>{total}</b> ta foydalanuvchiga xabar yuborilmoqda.\n\n"
+        "Jarayon tugagach statistika siz ga alohida xabar sifatida yuboriladi. ✅"
+    )
+    await callback.answer("Broadcast boshlandi!")
+
+
+@router.callback_query(BroadcastCallback.filter(F.action == "cancel"))
+async def broadcast_cancel(
+    callback: CallbackQuery,
+    state: FSMContext,
+    analytics_service: AnalyticsService,
+) -> None:
+    """Admin cancelled at any step — clear FSM and return to the admin overview."""
+    if not _is_admin(callback.from_user.id):
+        await _deny_callback(callback)
+        return
+
+    await state.clear()
+    overview = await analytics_service.overview()
+    await callback.message.edit_text(
+        format_admin_overview(overview),
+        reply_markup=get_admin_menu_keyboard(),
+    )
+    await callback.answer("Bekor qilindi.")
