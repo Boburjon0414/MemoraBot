@@ -48,7 +48,7 @@ async def main() -> None:
 
     dispatcher.update.middleware(DbSessionMiddleware(session_maker))
     dispatcher.update.middleware(
-        ServicesMiddleware(ai_provider, free_plan_generation_limit=settings.free_plan_generation_limit)
+        ServicesMiddleware(ai_provider, free_plan_daily_generations=settings.free_plan_daily_generations)
     )
     dispatcher.errors.register(handle_unexpected_error)
 

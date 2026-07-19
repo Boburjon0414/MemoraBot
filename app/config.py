@@ -36,8 +36,15 @@ class Settings(BaseSettings):
 
     # --- Free plan (see docs/MNEMONIC_LIBRARY.md) --------------------------
     # Cached words never consume this — only a genuinely new word (a cache
-    # miss, requiring a real Gemini call) counts against the limit.
+    # miss, requiring a real AI call) counts against the limit.
+    #
+    # `free_plan_generation_limit` (V1.2 legacy) is kept so existing .env
+    # files do not break. It is no longer read by UsageService.
     free_plan_generation_limit: int = 3
+    # `free_plan_daily_generations` (V1.3) is the daily rolling quota for
+    # free users. Resets automatically every 24 hours per request. Premium
+    # users bypass this entirely.
+    free_plan_daily_generations: int = 3
 
     # --- Logging ----------------------------------------------------------
     log_level: str = "INFO"

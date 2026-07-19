@@ -114,18 +114,21 @@ MESSAGES: Final[dict[str, dict[str, str]]] = {
     },
     "free_plan_limit_reached": {
         "uz": (
-            "🚫 Siz bepul rejadagi yangi so'zlar limitiga ({limit} ta) yetdingiz.\n\n"
-            "Ilgari so'ralgan so'zlarni istalgancha bepul ko'rishingiz mumkin — limit faqat "
-            "botimiz hali umuman ko'rmagan, yangi AI orqali yaratiladigan so'zlarga tegishli."
+            "🚫 Siz bugungi bepul limitga ({limit} ta yangi so'z) yetdingiz.\n\n"
+            "Limit 24 soatdan so'ng avtomatik tiklanadi.\n"
+            "Kutubxonada mavjud so'zlarni esa istalgancha bepul ko'rishingiz mumkin — "
+            "limit faqat botimiz hali ko'rmagan, yangi AI orqali yaratiladigan so'zlarga tegishli."
         ),
         "en": (
-            "🚫 You've reached the free plan's limit of {limit} new AI-generated words.\n\n"
+            "🚫 You've reached today's free plan limit of {limit} new AI-generated words.\n\n"
+            "Your quota resets automatically after 24 hours.\n"
             "You can still look up any word already in the library for free — the limit only "
             "applies to genuinely new words that require a fresh AI generation."
         ),
         "ru": (
-            "🚫 Вы достигли лимита бесплатного плана: {limit} новых слов, сгенерированных ИИ.\n\n"
-            "Слова, уже имеющиеся в библиотеке, по-прежнему доступны бесплатно без ограничений — "
+            "🚫 Вы исчерпали дневной лимит бесплатного плана: {limit} новых слов.\n\n"
+            "Лимит автоматически обновится через 24 часа.\n"
+            "Слова, уже имеющиеся в библиотеке, по-прежнему доступны бесплатно — "
             "лимит касается только полностью новых слов, требующих обращения к ИИ."
         ),
     },

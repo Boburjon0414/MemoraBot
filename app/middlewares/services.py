@@ -31,9 +31,9 @@ from app.services.user_service import UserService
 class ServicesMiddleware(BaseMiddleware):
     """Wires repositories -> services for each update and injects the services."""
 
-    def __init__(self, ai_provider: AIProvider, free_plan_generation_limit: int) -> None:
+    def __init__(self, ai_provider: AIProvider, free_plan_daily_generations: int) -> None:
         self._ai_provider = ai_provider
-        self._free_plan_generation_limit = free_plan_generation_limit
+        self._free_plan_daily_generations = free_plan_daily_generations
 
     async def __call__(
         self,
@@ -54,7 +54,7 @@ class ServicesMiddleware(BaseMiddleware):
         data["mnemonic_service"] = MnemonicService(self._ai_provider, mnemonic_repo)
         data["feedback_service"] = MnemonicFeedbackService(user_repo, feedback_repo, mnemonic_repo)
         data["usage_service"] = UsageService(
-            user_repo, settings_repo, generation_limit=self._free_plan_generation_limit
+            user_repo, settings_repo, daily_limit=self._free_plan_daily_generations
         )
         data["analytics_service"] = AnalyticsService(analytics_repo)
 
