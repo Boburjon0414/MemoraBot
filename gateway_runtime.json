@@ -1,0 +1,13 @@
+{
+  "provider_priority": [
+    "gemini",
+    "groq"
+  ],
+  "enabled_providers": [
+    "gemini",
+    "groq"
+  ],
+  "maintenance_mode": false,
+  "disabled_keys": {},
+  "paused_keys": {}
+}

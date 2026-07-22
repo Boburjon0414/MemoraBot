@@ -25,3 +25,10 @@ class BroadcastStates(StatesGroup):
     """States for the admin broadcast composition flow."""
 
     waiting_for_message = State()
+
+
+class AdminReferralStates(StatesGroup):
+    """States for the admin referral-control flows."""
+
+    searching_user = State()       # waiting for Telegram ID or @username input
+    waiting_coin_amount = State()  # waiting for amount (add / remove / bonus)

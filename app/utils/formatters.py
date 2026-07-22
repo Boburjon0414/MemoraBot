@@ -33,7 +33,7 @@ def format_mnemonic_result(entry: MnemonicHistory, lang: str = "uz") -> str:
     )
 
 
-def format_full_name(first_name: str | None, last_name: str | None) -> str:
+def format_full_name(first_name: str | None, last_name: str | None, lang: str = "uz") -> str:
     """Combine a Telegram contact's first/last name into one display name."""
     parts = [part for part in (first_name, last_name) if part]
-    return " ".join(parts) if parts else "do'stim"
+    return " ".join(parts) if parts else t("common.default_name", lang)

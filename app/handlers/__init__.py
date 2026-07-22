@@ -9,7 +9,10 @@ from __future__ import annotations
 
 from aiogram import Router
 
-from app.handlers import about, admin, dashboard, fallback, mnevoca, settings, start
+from app.handlers import (
+    about, admin, ai_gateway_admin, dashboard,
+    fallback, mnevoca, referral, settings, start,
+)
 
 
 def get_root_router() -> Router:
@@ -17,6 +20,8 @@ def get_root_router() -> Router:
     root = Router(name="root")
     root.include_router(start.router)
     root.include_router(admin.router)
+    root.include_router(ai_gateway_admin.router)   # AI Gateway control panel
+    root.include_router(referral.router)            # referral & coin pages + admin referral panel
     root.include_router(dashboard.router)
     root.include_router(mnevoca.router)
     root.include_router(settings.router)

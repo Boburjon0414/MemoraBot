@@ -18,6 +18,17 @@ class UserRepository(BaseRepository[User]):
         result = await self._session.execute(select(User).where(User.telegram_id == telegram_id))
         return result.scalar_one_or_none()
 
+    async def get_by_username(self, username: str) -> User | None:
+        """Fetch a user by their Telegram username (case-insensitive, without @)."""
+        result = await self._session.execute(
+            select(User).where(User.username.ilike(username))
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_id(self, user_id: int) -> User | None:
+        """Fetch a user by their internal primary-key id."""
+        return await self._session.get(User, user_id)
+
     async def get_all_telegram_ids(self) -> list[int]:
         """Return the Telegram user ID of every registered user.
 

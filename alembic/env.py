@@ -17,7 +17,14 @@ from alembic import context
 
 from app.config import settings
 from app.database.base import Base
-from app.database.models import MnemonicHistory, User, UserSettings  # noqa: F401
+from app.database.models import (  # noqa: F401
+    CoinTransaction,
+    CoinWallet,
+    MnemonicHistory,
+    Referral,
+    User,
+    UserSettings,
+)
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

@@ -23,6 +23,7 @@ from app.logging_config import setup_logging
 from app.middlewares.db_session import DbSessionMiddleware
 from app.middlewares.services import ServicesMiddleware
 from app.services.ai.factory import create_ai_provider
+from app.services.ai.gateway import AIGateway
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,13 @@ async def main() -> None:
             ai_provider,
             free_plan_daily_generations=settings.free_plan_daily_generations,
             broadcast_delay_ms=settings.broadcast_delay_ms,
+            referral_base_reward=settings.referral_base_reward,
+            referral_increment=settings.referral_increment,
+            referral_max_reward=settings.referral_max_reward,
+            premium_daily_cost=settings.premium_daily_cost,
+            welcome_referral_bonus=settings.welcome_referral_bonus,
+            top_referrers_limit=settings.top_referrers_limit,
+            bot_username=settings.bot_username,
         )
     )
     dispatcher.errors.register(handle_unexpected_error)
@@ -66,3 +74,7 @@ async def main() -> None:
     finally:
         await engine.dispose()
         await bot.session.close()
+        # Close AI Gateway HTTP sessions if running in gateway mode
+        if isinstance(ai_provider, AIGateway):
+            await ai_provider.close()
+            logger.info("AI Gateway sessions closed.")

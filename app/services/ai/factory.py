@@ -1,17 +1,16 @@
-"""Factory that instantiates the configured `AIProvider`.
+"""Factory that instantiates the AI provider (or AI Gateway).
 
-This is where `AI_PROVIDER` in settings gets turned into a concrete object.
-Adding a new provider (e.g. OpenAI) means writing one new class that
-implements `AIProvider` and adding one branch here — nothing else in the
-codebase changes.
+V1.5: Added "gateway" provider type that builds a full AIGateway with
+Free/Premium key pools, load balancing, and automatic failover.
 
-V1.2: also eagerly validates the mnemonic knowledge base before handing back
-a real `GeminiProvider`, so a broken/misconfigured knowledge file is caught
-right at startup with a clear log message — exactly like the existing
-missing-API-key check — both fall back to `MockProvider` rather than
-letting the whole bot crash or silently misbehave.
+Provider selection via AI_PROVIDER in .env:
+  "gateway"  → full AI Gateway (recommended for production)
+  "gemini"   → single GeminiProvider (legacy, single key/model)
+  "groq"     → single GroqProvider (single key/model)
+  "mock"     → offline MockProvider (development/CI)
+
+The public interface (create_ai_provider → AIProvider) is unchanged.
 """
-
 from __future__ import annotations
 
 import logging
@@ -19,6 +18,9 @@ import logging
 from app.config import Settings
 from app.services.ai.base import AIProvider
 from app.services.ai.gemini_provider import GeminiProvider
+from app.services.ai.groq_provider import GroqProvider
+from app.services.ai.gateway import AIGateway, RuntimeConfig
+from app.services.ai.gateway.key_slot import GatewayKeySlot
 from app.services.ai.knowledge_engine.exceptions import KnowledgeEngineError
 from app.services.ai.mnemonic_prompt import validate_mnemonic_prompt
 from app.services.ai.mock_provider import MockProvider
@@ -27,42 +29,148 @@ logger = logging.getLogger(__name__)
 
 
 async def create_ai_provider(settings: Settings) -> AIProvider:
-    """Instantiate the `AIProvider` configured via `settings.ai_provider`.
+    """Instantiate the AIProvider (or AIGateway) configured in settings.
 
-    Falls back to `MockProvider` when Gemini is selected but no API key is
-    configured, OR when the mnemonic knowledge base fails validation, so
-    MemoraBot remains fully runnable (and fails loudly-but-gracefully rather
-    than silently) even with a broken `.env` or a broken knowledge file.
+    Falls back to MockProvider when a real provider is configured but
+    cannot be initialised (missing keys, broken knowledge base, etc.),
+    so the bot always remains runnable.
     """
     provider_name = settings.ai_provider.strip().lower()
 
-    if provider_name == "gemini":
-        if not settings.gemini_api_key:
-            logger.warning(
-                "AI_PROVIDER is 'gemini' but GEMINI_API_KEY is empty — falling back to "
-                "MockProvider. Set GEMINI_API_KEY in .env to enable real generation."
-            )
-            return MockProvider()
-
+    # ── Validate shared dependency: knowledge base ─────────────────────── #
+    if provider_name != "mock":
         try:
             await validate_mnemonic_prompt(version=settings.mnemonic_prompt_version)
         except KnowledgeEngineError:
             logger.exception(
-                "Mnemonic knowledge base (version=%s) failed validation — falling back to "
-                "MockProvider. Check app/knowledge/%s/ for errors.",
-                settings.mnemonic_prompt_version,
+                "Mnemonic knowledge base (version=%s) failed validation — "
+                "falling back to MockProvider.",
                 settings.mnemonic_prompt_version,
             )
             return MockProvider()
 
+    # ── Gateway mode (production) ──────────────────────────────────────── #
+    if provider_name == "gateway":
+        return await _create_gateway(settings)
+
+    # ── Legacy single-provider modes ───────────────────────────────────── #
+    if provider_name == "gemini":
+        if not settings.gemini_api_key:
+            logger.warning(
+                "AI_PROVIDER=gemini but GEMINI_API_KEY is empty — "
+                "falling back to MockProvider."
+            )
+            return MockProvider()
         return GeminiProvider(
             api_key=settings.gemini_api_key,
             model=settings.gemini_model,
             prompt_version=settings.mnemonic_prompt_version,
         )
 
+    if provider_name == "groq":
+        if not settings.groq_api_key:
+            logger.warning(
+                "AI_PROVIDER=groq but GROQ_API_KEY is empty — "
+                "falling back to MockProvider."
+            )
+            return MockProvider()
+        return GroqProvider(
+            api_key=settings.groq_api_key,
+            model=settings.groq_model,
+            prompt_version=settings.mnemonic_prompt_version,
+        )
+
     if provider_name == "mock":
         return MockProvider()
 
-    logger.warning("Unknown AI_PROVIDER=%r, falling back to MockProvider.", settings.ai_provider)
+    logger.warning(
+        "Unknown AI_PROVIDER=%r — falling back to MockProvider.", settings.ai_provider
+    )
     return MockProvider()
+
+
+async def _create_gateway(settings: Settings) -> AIProvider:
+    """Build and return a fully configured AIGateway.
+
+    Falls back to MockProvider if no keys are configured at all.
+    """
+    runtime = RuntimeConfig()
+    await runtime.load()
+
+    gateway = AIGateway(
+        prompt_version=settings.mnemonic_prompt_version,
+        runtime_config=runtime,
+    )
+
+    # ── Register key slots ─────────────────────────────────────────────── #
+    total_slots = 0
+
+    # Gemini free keys
+    for idx, key in enumerate(settings.free_gemini_key_list, start=1):
+        gateway.register_slot(GatewayKeySlot(
+            provider_name="gemini",
+            key_index=idx,
+            tier="free",
+            api_key=key,
+            models=settings.gemini_model_list,
+            prompt_version=settings.mnemonic_prompt_version,
+            request_timeout=settings.gateway_request_timeout,
+        ))
+        total_slots += 1
+
+    # Gemini premium keys
+    for idx, key in enumerate(settings.premium_gemini_key_list, start=1):
+        gateway.register_slot(GatewayKeySlot(
+            provider_name="gemini",
+            key_index=idx,
+            tier="premium",
+            api_key=key,
+            models=settings.gemini_model_list,
+            prompt_version=settings.mnemonic_prompt_version,
+            request_timeout=settings.gateway_request_timeout,
+        ))
+        total_slots += 1
+
+    # Groq free keys
+    for idx, key in enumerate(settings.free_groq_key_list, start=1):
+        gateway.register_slot(GatewayKeySlot(
+            provider_name="groq",
+            key_index=idx,
+            tier="free",
+            api_key=key,
+            models=settings.groq_model_list,
+            prompt_version=settings.mnemonic_prompt_version,
+            request_timeout=settings.gateway_request_timeout,
+        ))
+        total_slots += 1
+
+    # Groq premium keys
+    for idx, key in enumerate(settings.premium_groq_key_list, start=1):
+        gateway.register_slot(GatewayKeySlot(
+            provider_name="groq",
+            key_index=idx,
+            tier="premium",
+            api_key=key,
+            models=settings.groq_model_list,
+            prompt_version=settings.mnemonic_prompt_version,
+            request_timeout=settings.gateway_request_timeout,
+        ))
+        total_slots += 1
+
+    # ── Safety check ───────────────────────────────────────────────────── #
+    if total_slots == 0:
+        logger.warning(
+            "AI_PROVIDER=gateway but no API keys are configured "
+            "(FREE_GEMINI_KEYS, PREMIUM_GEMINI_KEYS, FREE_GROQ_KEYS, "
+            "PREMIUM_GROQ_KEYS are all empty) — falling back to MockProvider."
+        )
+        return MockProvider()
+
+    logger.info(
+        "AI Gateway ready: %d key slot(s) registered across "
+        "providers=%s (priority: %s)",
+        total_slots,
+        list(runtime.enabled_providers),
+        runtime.provider_priority,
+    )
+    return gateway

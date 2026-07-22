@@ -47,3 +47,39 @@ class BroadcastCallback(CallbackData, prefix="bcast"):
     """Payload for the admin broadcast confirmation buttons."""
 
     action: str  # "confirm" | "cancel"
+
+
+class ReferralCallback(CallbackData, prefix="ref"):
+    """Payload for the user-facing referral / coin pages."""
+
+    action: str  # "invite_friends" | "refresh" | "coin_history"
+
+
+class AdminReferralCallback(CallbackData, prefix="aref"):
+    """Payload for the admin referral-control area.
+
+    `target_id` carries the Telegram user_id for user-specific actions
+    (add_coins, remove_coins, reset_coins, give_bonus, view_history);
+    it is 0 for list/stats actions that do not target a specific user.
+    """
+
+    action: str  # see referral_admin_kb for the full set
+    target_id: int = 0  # Telegram user_id, or 0 when not applicable
+
+
+class AIGatewayCallback(CallbackData, prefix="gw"):
+    """Payload for the admin AI Gateway control panel.
+
+    `provider` — "gemini" | "groq" | "" (empty = not applicable)
+    `tier`     — "free" | "premium" | "" (empty = not applicable)
+    `key_idx`  — 1-based key index; 0 = not applicable
+    """
+
+    action: str   # "status" | "keys" | "key_enable" | "key_disable" |
+                  # "key_pause" | "key_resume" | "key_test" |
+                  # "provider_enable" | "provider_disable" |
+                  # "maintenance_on" | "maintenance_off" |
+                  # "priority_gemini_first" | "priority_groq_first" | "back"
+    provider: str = ""
+    tier: str = ""
+    key_idx: int = 0
