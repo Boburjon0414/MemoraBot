@@ -1446,6 +1446,214 @@ MESSAGES: Final[dict[str, dict[str, str]]] = {
         "en": "⬅️ Key List",
         "ru": "⬅️ Список ключей",
     },
+    # ──────────────────────────────────────────────────────────────────────────
+    # VOCABULARY (V1.6) — My Vocabulary
+    # ──────────────────────────────────────────────────────────────────────────
+    "btn_my_vocabulary": {
+        "uz": "\U0001f4da Mening lug'atim",
+        "en": "\U0001f4da My Vocabulary",
+        "ru": "\U0001f4da \u041c\u043e\u0439 \u0441\u043b\u043e\u0432\u0430\u0440\u044c",
+    },
+    "vocab.title": {
+        "uz": "\U0001f4da <b>Mening lug'atim</b> ({total} ta so'z)",
+        "en": "\U0001f4da <b>My Vocabulary</b> ({total} words)",
+        "ru": "\U0001f4da <b>\u041c\u043e\u0439 \u0441\u043b\u043e\u0432\u0430\u0440\u044c</b> ({total} \u0441\u043b\u043e\u0432)",
+    },
+    "vocab.empty": {
+        "uz": (
+            "\U0001f4da <b>Mening lug'atim</b>\n\n"
+            "Hali hech qanday so'z yo'q.\n\n"
+            "MneVoca orqali birinchi so'zingizni qo'shing!"
+        ),
+        "en": (
+            "\U0001f4da <b>My Vocabulary</b>\n\n"
+            "No words yet.\n\n"
+            "Use MneVoca to add your first word!"
+        ),
+        "ru": (
+            "\U0001f4da <b>\u041c\u043e\u0439 \u0441\u043b\u043e\u0432\u0430\u0440\u044c</b>\n\n"
+            "\u0421\u043b\u043e\u0432 \u043f\u043e\u043a\u0430 \u043d\u0435\u0442.\n\n"
+            "\u0418\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 MneVoca, \u0447\u0442\u043e\u0431\u044b \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u043e\u0435 \u0441\u043b\u043e\u0432\u043e!"
+        ),
+    },
+    "vocab.page_indicator": {
+        "uz": "{current}/{total}",
+        "en": "{current}/{total}",
+        "ru": "{current}/{total}",
+    },
+    "vocab.search_prompt": {
+        "uz": "\U0001f50d So'z yoki ma'nosini kiriting:",
+        "en": "\U0001f50d Enter a word or its meaning:",
+        "ru": "\U0001f50d \u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0441\u043b\u043e\u0432\u043e \u0438\u043b\u0438 \u0435\u0433\u043e \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435:",
+    },
+    "vocab.search_no_results": {
+        "uz": "\U0001f50d <b>{query}</b> bo'yicha hech narsa topilmadi.",
+        "en": "\U0001f50d Nothing found for <b>{query}</b>.",
+        "ru": "\U0001f50d \u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e \u043f\u043e \u0437\u0430\u043f\u0440\u043e\u0441\u0443 <b>{query}</b>.",
+    },
+    "vocab.search_results_header": {
+        "uz": "\U0001f50d <b>{query}</b> bo'yicha natijalar: {total} ta",
+        "en": "\U0001f50d Results for <b>{query}</b>: {total}",
+        "ru": "\U0001f50d \u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u044b \u043f\u043e <b>{query}</b>: {total}",
+    },
+    "vocab.entry_not_found": {
+        "uz": "So'z topilmadi. Ehtimol u o'chirilgan.",
+        "en": "Word not found. It may have been deleted.",
+        "ru": "\u0421\u043b\u043e\u0432\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e. \u0412\u043e\u0437\u043c\u043e\u0436\u043d\u043e, \u043e\u043d\u043e \u0431\u044b\u043b\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043e.",
+    },
+    "vocab.label_favorited": {
+        "uz": "\u2b50 Sevimlilar ro'yxatida",
+        "en": "\u2b50 In your favorites",
+        "ru": "\u2b50 \u0412 \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u044b\u0445",
+    },
+    "vocab.label_update_available": {
+        "uz": "\u2728 Yangi versiya mavjud! Pastdagi tugmani bosing.",
+        "en": "\u2728 New mnemonic available! Tap the button below.",
+        "ru": "\u2728 \u0414\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u043d\u043e\u0432\u0430\u044f \u043c\u043d\u0435\u043c\u043e\u043d\u0438\u043a\u0430! \u041d\u0430\u0436\u043c\u0438\u0442\u0435 \u043a\u043d\u043e\u043f\u043a\u0443 \u043d\u0438\u0436\u0435.",
+    },
+    "vocab.delete_confirm_prompt": {
+        "uz": "\U0001f5d1 <b>{word}</b> so'zini lug'atdan o'chirishni xohlaysizmi?\n\n<i>Bu faqat sizning nusxangizni o'chiradi.</i>",
+        "en": "\U0001f5d1 Delete <b>{word}</b> from your vocabulary?\n\n<i>This only removes your personal copy.</i>",
+        "ru": "\U0001f5d1 \u0423\u0434\u0430\u043b\u0438\u0442\u044c <b>{word}</b> \u0438\u0437 \u0432\u0430\u0448\u0435\u0433\u043e \u0441\u043b\u043e\u0432\u0430\u0440\u044f?\n\n<i>\u0423\u0434\u0430\u043b\u044f\u0435\u0442\u0441\u044f \u0442\u043e\u043b\u044c\u043a\u043e \u0432\u0430\u0448\u0430 \u043b\u0438\u0447\u043d\u0430\u044f \u043a\u043e\u043f\u0438\u044f.</i>",
+    },
+    "vocab.update.title": {
+        "uz": "\u2728 Yangi mnemonika mavjud",
+        "en": "\u2728 New Mnemonic Available",
+        "ru": "\u2728 \u0414\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u043d\u043e\u0432\u0430\u044f \u043c\u043d\u0435\u043c\u043e\u043d\u0438\u043a\u0430",
+    },
+    "vocab.update.current_label": {
+        "uz": "Joriy versiya",
+        "en": "Current version",
+        "ru": "\u0422\u0435\u043a\u0443\u0449\u0430\u044f \u0432\u0435\u0440\u0441\u0438\u044f",
+    },
+    "vocab.update.new_label": {
+        "uz": "Yangi versiya",
+        "en": "New version",
+        "ru": "\u041d\u043e\u0432\u0430\u044f \u0432\u0435\u0440\u0441\u0438\u044f",
+    },
+    "vocab.update.prompt": {
+        "uz": "Qaysi versiyani saqlashni xohlaysiz?",
+        "en": "Which version would you like to keep?",
+        "ru": "\u041a\u0430\u043a\u0443\u044e \u0432\u0435\u0440\u0441\u0438\u044e \u0432\u044b \u0445\u043e\u0442\u0438\u0442\u0435 \u043e\u0441\u0442\u0430\u0432\u0438\u0442\u044c?",
+    },
+    "vocab.update_no_longer_available": {
+        "uz": "Yangilanish endi mavjud emas.",
+        "en": "This update is no longer available.",
+        "ru": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u0431\u043e\u043b\u044c\u0448\u0435 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e.",
+    },
+    # ---- answer / toast strings (shown via callback.answer) ----
+    "vocab.answer_favorited": {
+        "uz": "\u2b50 Sevimlilar ro'yxatiga qo'shildi",
+        "en": "\u2b50 Added to favorites",
+        "ru": "\u2b50 \u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043e \u0432 \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u043e\u0435",
+    },
+    "vocab.answer_unfavorited": {
+        "uz": "Sevimlilardan olib tashlandi",
+        "en": "Removed from favorites",
+        "ru": "\u0423\u0431\u0440\u0430\u043d\u043e \u0438\u0437 \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u043e\u0433\u043e",
+    },
+    "vocab.answer_deleted": {
+        "uz": "\U0001f5d1 So'z lug'atdan o'chirildi",
+        "en": "\U0001f5d1 Word removed from vocabulary",
+        "ru": "\U0001f5d1 \u0421\u043b\u043e\u0432\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043e \u0438\u0437 \u0441\u043b\u043e\u0432\u0430\u0440\u044f",
+    },
+    "vocab.answer_updated": {
+        "uz": "\u2728 Mnemonika yangilandi!",
+        "en": "\u2728 Mnemonic updated!",
+        "ru": "\u2728 \u041c\u043d\u0435\u043c\u043e\u043d\u0438\u043a\u0430 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0430!",
+    },
+    "vocab.answer_kept_current": {
+        "uz": "Joriy versiya saqlandi",
+        "en": "Keeping current version",
+        "ru": "\u041e\u0441\u0442\u0430\u0451\u043c\u0441\u044f \u043d\u0430 \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u0432\u0435\u0440\u0441\u0438\u0438",
+    },
+    # ---- button labels ----
+    "vocab.btn.search": {
+        "uz": "\U0001f50d Qidirish",
+        "en": "\U0001f50d Search",
+        "ru": "\U0001f50d \u041f\u043e\u0438\u0441\u043a",
+    },
+    "vocab.btn.clear_search": {
+        "uz": "\u274c Filtrni tozalash",
+        "en": "\u274c Clear filter",
+        "ru": "\u274c \u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440",
+    },
+    "vocab.btn.cancel_search": {
+        "uz": "\u274c Bekor qilish",
+        "en": "\u274c Cancel",
+        "ru": "\u274c \u041e\u0442\u043c\u0435\u043d\u0430",
+    },
+    "vocab.btn.prev": {
+        "uz": "\u2b05 Oldingi",
+        "en": "\u2b05 Prev",
+        "ru": "\u2b05 \u041d\u0430\u0437\u0430\u0434",
+    },
+    "vocab.btn.next": {
+        "uz": "Keyingi \u27a1",
+        "en": "Next \u27a1",
+        "ru": "\u0414\u0430\u043b\u0435\u0435 \u27a1",
+    },
+    "vocab.btn.prev_word": {
+        "uz": "\u25c0 Oldingi so'z",
+        "en": "\u25c0 Prev word",
+        "ru": "\u25c0 \u041f\u0440\u0435\u0434. \u0441\u043b\u043e\u0432\u043e",
+    },
+    "vocab.btn.next_word": {
+        "uz": "Keyingi so'z \u25ba",
+        "en": "Next word \u25ba",
+        "ru": "\u0421\u043b\u0435\u0434. \u0441\u043b\u043e\u0432\u043e \u25ba",
+    },
+    "vocab.btn.favorite": {
+        "uz": "\u2b50 Sevimlilarga qo'shish",
+        "en": "\u2b50 Add to favorites",
+        "ru": "\u2b50 \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0432 \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u043e\u0435",
+    },
+    "vocab.btn.unfavorite": {
+        "uz": "\u2b50 Sevimlilardan olib tashlash",
+        "en": "\u2b50 Remove from favorites",
+        "ru": "\u2b50 \u0423\u0431\u0440\u0430\u0442\u044c \u0438\u0437 \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u043e\u0433\u043e",
+    },
+    "vocab.btn.delete": {
+        "uz": "\U0001f5d1 O'chirish",
+        "en": "\U0001f5d1 Delete",
+        "ru": "\U0001f5d1 \u0423\u0434\u0430\u043b\u0438\u0442\u044c",
+    },
+    "vocab.btn.delete_confirm": {
+        "uz": "\u2705 Ha, o'chirish",
+        "en": "\u2705 Yes, delete",
+        "ru": "\u2705 \u0414\u0430, \u0443\u0434\u0430\u043b\u0438\u0442\u044c",
+    },
+    "vocab.btn.delete_cancel": {
+        "uz": "\u274c Bekor qilish",
+        "en": "\u274c Cancel",
+        "ru": "\u274c \u041e\u0442\u043c\u0435\u043d\u0430",
+    },
+    "vocab.btn.back_to_list": {
+        "uz": "\u2b05 Lug'atga qaytish",
+        "en": "\u2b05 Back to vocabulary",
+        "ru": "\u2b05 \u041d\u0430\u0437\u0430\u0434 \u043a \u0441\u043b\u043e\u0432\u0430\u0440\u044e",
+    },
+    "vocab.btn.back_to_word": {
+        "uz": "\u2b05 So'zga qaytish",
+        "en": "\u2b05 Back to word",
+        "ru": "\u2b05 \u041d\u0430\u0437\u0430\u0434 \u043a \u0441\u043b\u043e\u0432\u0443",
+    },
+    "vocab.btn.view_update": {
+        "uz": "\u2728 Yangi mnemonikani ko'rish",
+        "en": "\u2728 View new mnemonic",
+        "ru": "\u2728 \u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043d\u043e\u0432\u0443\u044e \u043c\u043d\u0435\u043c\u043e\u043d\u0438\u043a\u0443",
+    },
+    "vocab.btn.accept_update": {
+        "uz": "\u2728 Yangi versiyani qabul qilish",
+        "en": "\u2728 Update Mnemonic",
+        "ru": "\u2728 \u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c \u043c\u043d\u0435\u043c\u043e\u043d\u0438\u043a\u0443",
+    },
+    "vocab.btn.keep_current": {
+        "uz": "Hozirgi versiyani saqlash",
+        "en": "Keep Current",
+        "ru": "\u041e\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u0442\u0435\u043a\u0443\u0449\u0443\u044e",
+    },
+
 }
 
 

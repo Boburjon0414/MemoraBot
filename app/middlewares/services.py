@@ -30,6 +30,7 @@ from app.repositories.mnemonic_repository import MnemonicRepository
 from app.repositories.referral_repository import ReferralRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.user_settings_repository import UserSettingsRepository
+from app.repositories.vocabulary_repository import VocabularyRepository
 from app.services.ai.base import AIProvider
 from app.services.ai.gateway import AIGateway
 from app.services.analytics_service import AnalyticsService
@@ -41,6 +42,7 @@ from app.services.referral_service import ReferralService
 from app.services.settings_service import SettingsService
 from app.services.usage_service import UsageService
 from app.services.user_service import UserService
+from app.services.vocabulary_service import VocabularyService
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +92,7 @@ class ServicesMiddleware(BaseMiddleware):
         analytics_repo = AnalyticsRepository(session)
         coin_repo = CoinRepository(session)
         referral_repo = ReferralRepository(session)
+        vocabulary_repo = VocabularyRepository(session)  # V1.6
 
         # ── Resolve AI provider (tier-aware for gateway mode) ─────────── #
         if self._is_gateway:
@@ -131,6 +134,9 @@ class ServicesMiddleware(BaseMiddleware):
             top_limit=self._top_referrers_limit,
             bot_username=self._bot_username,
         )
+
+        # ── Vocabulary (V1.6 — My Vocabulary) ────────────────────────── #
+        data["vocabulary_service"] = VocabularyService(vocabulary_repo)
 
         # ── AI Gateway (admin panel access; None in legacy mode) ──────── #
         data["ai_gateway"] = (

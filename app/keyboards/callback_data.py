@@ -67,6 +67,33 @@ class AdminReferralCallback(CallbackData, prefix="aref"):
     target_id: int = 0  # Telegram user_id, or 0 when not applicable
 
 
+class VocabularyCallback(CallbackData, prefix="voc"):
+    """Payload for the My Vocabulary list screen.
+
+    `search_query` carries the current filter so it survives pagination
+    and back-navigation without storing it in FSM state.  Empty string
+    means no active filter (None is not serialisable by CallbackData).
+    """
+
+    action: str       # "open" | "search" | "cancel_search" | "noop"
+    page: int = 0
+    search_query: str = ""  # "" = no filter; non-empty = active search
+
+
+class VocabularyWordCallback(CallbackData, prefix="vocw"):
+    """Payload for a single vocabulary entry detail screen and its actions.
+
+    `page` and `search_query` are threaded through so Back buttons always
+    return the user to the exact page and search context they came from.
+    """
+
+    action: str       # "detail" | "favorite" | "delete" | "delete_confirm" |
+                      # "view_update" | "accept_update" | "reject_update"
+    entry_id: int = 0
+    page: int = 0
+    search_query: str = ""  # "" = no filter; carries search context through navigation
+
+
 class AIGatewayCallback(CallbackData, prefix="gw"):
     """Payload for the admin AI Gateway control panel.
 

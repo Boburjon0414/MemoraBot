@@ -13,6 +13,7 @@ from app.database.base import Base
 if TYPE_CHECKING:
     from app.database.models.mnemonic_history import MnemonicHistory
     from app.database.models.user_settings import UserSettings
+    from app.database.models.vocabulary import VocabularyEntry  # V1.6
 
 
 class User(Base):
@@ -35,6 +36,9 @@ class User(Base):
         back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
     mnemonic_history: Mapped[list["MnemonicHistory"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    vocabulary_entries: Mapped[list["VocabularyEntry"]] = relationship(  # V1.6
         back_populates="user", cascade="all, delete-orphan"
     )
 

@@ -10,6 +10,7 @@ from app.database.models.mnemonic_history import MnemonicHistory
 from app.database.models.referral import Referral
 from app.database.models.user import User
 from app.database.models.user_settings import UserSettings
+from app.database.models.vocabulary import VocabularyEntry  # V1.6
 
 __all__ = [
     "User",
@@ -19,4 +20,5 @@ __all__ = [
     "CoinWallet",
     "CoinTransaction",
     "Referral",
+    "VocabularyEntry",  # V1.6
 ]

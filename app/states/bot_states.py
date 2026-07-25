@@ -32,3 +32,9 @@ class AdminReferralStates(StatesGroup):
 
     searching_user = State()       # waiting for Telegram ID or @username input
     waiting_coin_amount = State()  # waiting for amount (add / remove / bonus)
+
+
+class VocabularyStates(StatesGroup):
+    """States for the My Vocabulary search flow (V1.6)."""
+
+    searching = State()  # waiting for the user to type a search query

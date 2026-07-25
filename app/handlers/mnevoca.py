@@ -29,6 +29,7 @@ from app.services.mnemonic_service import MnemonicService
 from app.services.settings_service import SettingsService
 from app.services.usage_service import UsageService
 from app.services.user_service import UserService
+from app.services.vocabulary_service import VocabularyService
 from app.states.bot_states import MneVocaStates
 from app.texts.messages import t
 from app.utils.formatters import format_mnemonic_result
@@ -74,6 +75,7 @@ async def process_word(
     mnemonic_service: MnemonicService,
     feedback_service: MnemonicFeedbackService,
     usage_service: UsageService,
+    vocabulary_service: VocabularyService,  # V1.6: auto-save
 ) -> None:
     """Generate (or serve from the library) and send a mnemonic for the typed word."""
     word = message.text.strip()
@@ -118,6 +120,10 @@ async def process_word(
         reply_markup=get_mnevoca_result_keyboard(lang, entry.id, user_rating),
     )
 
+    # V1.6: Auto-save to personal vocabulary.
+    # Idempotent: creates on first lookup, detects system upgrades on repeat
+    # lookups, ignores manual regenerations (same prompt_version).
+    await vocabulary_service.save_from_mnemonic(user_id=user.id, mnemonic=entry)
 
 @router.message(MneVocaStates.waiting_for_word)
 async def process_word_invalid_type(message: Message, settings_service: SettingsService) -> None:
@@ -134,6 +140,7 @@ async def regenerate_mnemonic(
     settings_service: SettingsService,
     mnemonic_service: MnemonicService,
     feedback_service: MnemonicFeedbackService,
+    vocabulary_service: VocabularyService,  # V1.6: auto-save
 ) -> None:
     """Task 4: "🔄 Generate Another Mnemonic" — ignore the cache, force a new version."""
     lang = await settings_service.get_language(callback.from_user.id)
@@ -158,6 +165,11 @@ async def regenerate_mnemonic(
     except AIProviderError:
         await callback.message.edit_text(t("mnevoca_error", lang))
         return
+
+    # V1.6: Auto-save hook. Same prompt_version as active system, so
+    # save_from_mnemonic treats this as a same-version regeneration and
+    # does NOT overwrite the user's active vocabulary entry.
+    await vocabulary_service.save_from_mnemonic(user_id=user.id, mnemonic=entry)
 
     user_rating = await feedback_service.get_user_rating(
         telegram_id=callback.from_user.id, mnemonic_history_id=entry.id

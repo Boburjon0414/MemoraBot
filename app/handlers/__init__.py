@@ -11,7 +11,7 @@ from aiogram import Router
 
 from app.handlers import (
     about, admin, ai_gateway_admin, dashboard,
-    fallback, mnevoca, referral, settings, start,
+    fallback, mnevoca, referral, settings, start, vocabulary,
 )
 
 
@@ -24,6 +24,7 @@ def get_root_router() -> Router:
     root.include_router(referral.router)            # referral & coin pages + admin referral panel
     root.include_router(dashboard.router)
     root.include_router(mnevoca.router)
+    root.include_router(vocabulary.router)          # V1.6: My Vocabulary
     root.include_router(settings.router)
     root.include_router(about.router)
     root.include_router(fallback.router)

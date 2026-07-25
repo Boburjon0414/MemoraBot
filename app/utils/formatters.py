@@ -37,3 +37,55 @@ def format_full_name(first_name: str | None, last_name: str | None, lang: str = 
     """Combine a Telegram contact's first/last name into one display name."""
     parts = [part for part in (first_name, last_name) if part]
     return " ".join(parts) if parts else t("common.default_name", lang)
+
+
+# ── Vocabulary formatters (V1.6) ───────────────────────────────────────── #
+
+from app.database.models.vocabulary import VocabularyEntry  # noqa: E402
+
+
+def format_vocab_detail(entry: VocabularyEntry, lang: str = "uz") -> str:
+    """Render a VocabularyEntry as the detail screen HTML message.
+
+    Uses the same visual structure as format_mnemonic_result so the user
+    sees a consistent layout whether they are in MneVoca or My Vocabulary.
+    Appends a favorite indicator and a pending-update notice when relevant.
+    """
+    difficulty_text = t(_DIFFICULTY_KEYS.get(entry.difficulty, "difficulty_b1"), lang)
+
+    lines = [
+        f"📖 <b>{entry.word.capitalize()}</b>\n",
+        f"🇺🇿 <b>{t('label_meaning', lang)}</b>\n{entry.meaning}\n",
+        f"🔊 <b>{t('label_pronunciation', lang)}</b>\n{entry.uzbek_pronunciation}\n",
+        f"🧠 <b>{t('label_story', lang)}</b>\n{entry.mnemonic_story}\n",
+        f"✍ <b>{t('label_example', lang)}</b>\n<i>{entry.example_sentence}</i>\n",
+        f"<b>{t('label_difficulty', lang)}:</b> {difficulty_text}",
+    ]
+
+    if entry.is_favorite:
+        lines.append(f"\n{t('vocab.label_favorited', lang)}")
+
+    if entry.pending_mnemonic_id is not None:
+        lines.append(f"\n\n{t('vocab.label_update_available', lang)}")
+
+    return "\n".join(lines)
+
+
+def format_vocab_update_comparison(
+    entry: VocabularyEntry,
+    pending: MnemonicHistory,
+    lang: str = "uz",
+) -> str:
+    """Render the side-by-side update comparison screen.
+
+    Shows the user's current mnemonic story followed by the new one so
+    they can make an informed choice before accepting or rejecting.
+    """
+    return (
+        f"✨ <b>{t('vocab.update.title', lang)}</b>\n\n"
+        f"━━━ {t('vocab.update.current_label', lang)} ━━━\n"
+        f"🧠 {entry.mnemonic_story}\n\n"
+        f"━━━ {t('vocab.update.new_label', lang)} ━━━\n"
+        f"🧠 {pending.mnemonic_story}\n\n"
+        f"<i>{t('vocab.update.prompt', lang)}</i>"
+    )
