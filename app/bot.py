@@ -3,6 +3,13 @@ middlewares, and handlers together, then starts long polling.
 
 Kept intentionally free of business logic — this file's only job is to
 construct objects and connect them.
+
+Step 4: The bare `create_ai_provider()` call is replaced by
+`PlatformContainer`, which owns every application-lifetime singleton
+(AI gateway, future vector store, document processor pool, etc.).
+`ServicesMiddleware` now receives `platform` instead of a raw
+`ai_provider`, and reads singletons from it.  The composition root
+itself becomes simpler: start → initialize → poll → shutdown.
 """
 
 from __future__ import annotations
@@ -22,8 +29,7 @@ from app.handlers.errors import handle_unexpected_error
 from app.logging_config import setup_logging
 from app.middlewares.db_session import DbSessionMiddleware
 from app.middlewares.services import ServicesMiddleware
-from app.services.ai.factory import create_ai_provider
-from app.services.ai.gateway import AIGateway
+from app.platform import PlatformContainer  # Step 4
 
 logger = logging.getLogger(__name__)
 
@@ -31,16 +37,22 @@ logger = logging.getLogger(__name__)
 async def main() -> None:
     """Build every component and start polling Telegram for updates."""
     setup_logging(settings.log_level)
-    logger.info("Starting MemoraBot...")
+    logger.info("Starting MemoraBot…")
 
+    # ── Database ────────────────────────────────────────────────────────── #
     engine = create_engine(settings.database_url)
     await init_models(engine)
     session_maker = create_session_maker(engine)
     logger.info("Database ready at %s", settings.database_url)
 
-    ai_provider = await create_ai_provider(settings)
-    logger.info("Using AI provider: %s", ai_provider.name)
+    # ── Platform singletons (Step 4) ────────────────────────────────────── #
+    # PlatformContainer owns every application-lifetime resource.
+    # initialize() constructs them in dependency order.
+    # shutdown() closes them in reverse order inside the finally block.
+    platform = PlatformContainer(settings)
+    await platform.initialize()
 
+    # ── Telegram bot & dispatcher ───────────────────────────────────────── #
     bot = Bot(
         token=settings.bot_token,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
@@ -50,7 +62,7 @@ async def main() -> None:
     dispatcher.update.middleware(DbSessionMiddleware(session_maker))
     dispatcher.update.middleware(
         ServicesMiddleware(
-            ai_provider,
+            platform=platform,                    # Step 4: was bare ai_provider
             free_plan_daily_generations=settings.free_plan_daily_generations,
             broadcast_delay_ms=settings.broadcast_delay_ms,
             referral_base_reward=settings.referral_base_reward,
@@ -68,13 +80,12 @@ async def main() -> None:
 
     await bot.delete_webhook(drop_pending_updates=True)
 
+    # ── Polling loop ────────────────────────────────────────────────────── #
     try:
         logger.info("MemoraBot is polling for updates.")
         await dispatcher.start_polling(bot)
     finally:
+        # Shut down in reverse-dependency order.
         await engine.dispose()
         await bot.session.close()
-        # Close AI Gateway HTTP sessions if running in gateway mode
-        if isinstance(ai_provider, AIGateway):
-            await ai_provider.close()
-            logger.info("AI Gateway sessions closed.")
+        await platform.shutdown()  # closes AI Gateway + future singletons

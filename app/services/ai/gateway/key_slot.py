@@ -33,6 +33,7 @@ from app.services.ai.gateway.errors import (
 from app.services.ai.gateway.key_health import KeyHealth
 from app.services.ai.knowledge_engine.exceptions import KnowledgeEngineError
 from app.services.ai.mnemonic_prompt import build_mnemonic_prompt
+from app.services.ai.router import AIRequest, AIResponse
 from app.services.ai.schemas import MnemonicResult
 
 logger = logging.getLogger(__name__)
@@ -227,6 +228,70 @@ class GatewayKeySlot:
             f"All models exhausted on {self.label}"
         ) from last_exc
 
+    async def complete_request(self, request: AIRequest) -> AIResponse:
+        """Send a generic `AIRequest` through this key slot, trying each model.
+
+        This is the generic sibling of `generate()`.  It uses the same HTTP
+        session, the same error classification, and the same model cascade
+        logic — but accepts any system_prompt / user_message instead of the
+        mnemonic-specific prompt.
+
+        Raises the same gateway-internal exceptions as `generate()` so the
+        gateway's `_exhaust_pool_generic()` method can route around failures
+        exactly as it does for mnemonic generation.
+        """
+        last_exc: Exception | None = None
+
+        for model in self._models:
+            try:
+                t0 = time.monotonic()
+                raw_text = await self._call_generic(request, model)
+                latency_ms = (time.monotonic() - t0) * 1000
+                await self.health.record_success(latency_ms)
+                logger.info(
+                    "✅ %s model=%s type=%r %.0fms",
+                    self.label, model, request.request_type, latency_ms,
+                )
+                return AIResponse(
+                    raw_text=raw_text,
+                    provider_name=self.provider_name,
+                    model_name=model,
+                    latency_ms=latency_ms,
+                )
+
+            except (QuotaExceededError, KeyInvalidError):
+                await self.health.record_failure()
+                raise
+
+            except ProviderUnavailableError:
+                await self.health.record_failure(cooldown_seconds=30)
+                logger.warning(
+                    "⚠️  %s model=%s provider unreachable (generic request)",
+                    self.label, model,
+                )
+                raise
+
+            except TransientError as exc:
+                last_exc = exc
+                await self.health.record_failure(cooldown_seconds=5)
+                logger.warning(
+                    "⚠️  %s model=%s transient HTTP %s — trying next model",
+                    self.label, model, exc.status,
+                )
+                continue
+
+            except ModelUnavailableError as exc:
+                last_exc = exc
+                logger.warning(
+                    "⚠️  %s model=%s unavailable — trying next model",
+                    self.label, model,
+                )
+                continue
+
+        raise ModelUnavailableError(
+            f"All models exhausted on {self.label} (generic request)"
+        ) from last_exc
+
     # ── Provider dispatch ──────────────────────────────────────────────── #
 
     async def _call(
@@ -238,6 +303,21 @@ class GatewayKeySlot:
             return await self._call_groq(prompt_text, model, word)
         raise NotImplementedError(
             f"Unknown provider in GatewayKeySlot: {self.provider_name!r}"
+        )
+
+    async def _call_generic(self, request: AIRequest, model: str) -> str:
+        """Send an `AIRequest` to the provider and return the raw text reply.
+
+        Dispatches to the provider-specific implementation.  Returns the
+        raw response string; the caller (complete_request) wraps it in
+        `AIResponse`.  Raises the same gateway-internal exceptions as `_call`.
+        """
+        if self.provider_name == "gemini":
+            return await self._call_gemini_generic(request, model)
+        if self.provider_name == "groq":
+            return await self._call_groq_generic(request, model)
+        raise NotImplementedError(
+            f"Unknown provider in GatewayKeySlot._call_generic: {self.provider_name!r}"
         )
 
     # ── Gemini ─────────────────────────────────────────────────────────── #
@@ -274,6 +354,63 @@ class GatewayKeySlot:
             raise ProviderUnavailableError(f"Gemini client error: {exc}") from exc
 
         return _parse_gemini_body(body, word)
+
+    async def _call_gemini_generic(self, request: AIRequest, model: str) -> str:
+        """Send a generic AIRequest to Gemini and return the raw text reply.
+
+        Uses a `system_instruction` field (Gemini's preferred way to supply
+        a system prompt) alongside a single user turn.  When `response_schema`
+        is set, it is passed through to `generationConfig.responseSchema` for
+        structured JSON output; otherwise `responseMimeType` is omitted so
+        the model can return free-form text.
+        """
+        url = _GEMINI_ENDPOINT.format(model=model)
+
+        generation_config: dict = {
+            "temperature": request.temperature,
+            "maxOutputTokens": request.max_tokens,
+        }
+        if request.response_schema is not None:
+            generation_config["responseMimeType"] = "application/json"
+            generation_config["responseSchema"] = request.response_schema
+
+        payload: dict = {
+            "system_instruction": {
+                "parts": [{"text": request.system_prompt}]
+            },
+            "contents": [
+                {"role": "user", "parts": [{"text": request.user_message}]}
+            ],
+            "generationConfig": generation_config,
+        }
+        headers = {
+            "x-goog-api-key": self._api_key,
+            "Content-Type": "application/json",
+        }
+
+        session = await self._session_get()
+        try:
+            async with session.post(url, json=payload, headers=headers) as resp:
+                body = await resp.text()
+                _raise_for_gemini_status(resp.status, body)
+        except (aiohttp.ClientConnectorError, aiohttp.ServerConnectionError) as exc:
+            raise ProviderUnavailableError(f"Gemini DNS/network error: {exc}") from exc
+        except asyncio.TimeoutError as exc:
+            raise ProviderUnavailableError("Gemini request timed out") from exc
+        except GatewayRoutingError:  # type: ignore[misc]
+            raise
+        except aiohttp.ClientError as exc:
+            raise ProviderUnavailableError(f"Gemini client error: {exc}") from exc
+
+        # Extract the raw text from the Gemini response envelope
+        try:
+            import json as _json
+            data = _json.loads(body)
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        except (KeyError, IndexError, _json.JSONDecodeError) as exc:
+            raise ModelUnavailableError(
+                f"Gemini returned unparseable generic response"
+            ) from exc
 
     # ── Groq ───────────────────────────────────────────────────────────── #
 
@@ -312,6 +449,60 @@ class GatewayKeySlot:
             raise ProviderUnavailableError(f"Groq client error: {exc}") from exc
 
         return _parse_groq_body(body, word)
+
+    async def _call_groq_generic(self, request: AIRequest, model: str) -> str:
+        """Send a generic AIRequest to Groq and return the raw text reply.
+
+        Groq uses the OpenAI-compatible messages format with a system role.
+        When `response_schema` is set, `response_format: json_object` is
+        enabled — Groq does not support the full JSON Schema constraint, but
+        the schema is embedded as a description in the system prompt by
+        convention (callers should include schema hints in `system_prompt`).
+        """
+        import json as _json
+
+        messages = [
+            {"role": "system", "content": request.system_prompt},
+            {"role": "user", "content": request.user_message},
+        ]
+
+        payload: dict = {
+            "model": model,
+            "messages": messages,
+            "temperature": request.temperature,
+            "max_tokens": request.max_tokens,
+        }
+        if request.response_schema is not None:
+            payload["response_format"] = {"type": "json_object"}
+
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+        }
+
+        session = await self._session_get()
+        try:
+            async with session.post(
+                _GROQ_ENDPOINT, json=payload, headers=headers
+            ) as resp:
+                body = await resp.text()
+                _raise_for_groq_status(resp.status, body)
+        except (aiohttp.ClientConnectorError, aiohttp.ServerConnectionError) as exc:
+            raise ProviderUnavailableError(f"Groq DNS/network error: {exc}") from exc
+        except asyncio.TimeoutError as exc:
+            raise ProviderUnavailableError("Groq request timed out") from exc
+        except GatewayRoutingError:  # type: ignore[misc]
+            raise
+        except aiohttp.ClientError as exc:
+            raise ProviderUnavailableError(f"Groq client error: {exc}") from exc
+
+        try:
+            data = _json.loads(body)
+            return data["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, _json.JSONDecodeError) as exc:
+            raise ModelUnavailableError(
+                "Groq returned unparseable generic response"
+            ) from exc
 
 
 # ── Status-code → exception mapping (module-level to keep classes thin) ───── #

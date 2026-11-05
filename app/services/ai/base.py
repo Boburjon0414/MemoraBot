@@ -1,10 +1,15 @@
-"""The `AIProvider` interface: the single seam that lets MemoraBot swap
+"""The `MnemonicProvider` interface: the single seam that lets MemoraBot swap
 mnemonic-generation backends (Gemini, OpenAI, a local model, ...) without
 ever touching `MnemonicService` or the handlers layer.
 
 This is the Open/Closed and Dependency-Inversion piece of the architecture:
 `MnemonicService` depends only on this abstraction, never on a concrete
 provider class.
+
+Renamed from `AIProvider` → `MnemonicProvider` to make the scope of this
+interface explicit: it generates mnemonics only. The generic AI call
+interface (for chat, RAG, quiz generation, etc.) lives in
+`app/services/ai/router.py` as `AIRouter`.
 """
 
 from __future__ import annotations
@@ -14,7 +19,7 @@ from abc import ABC, abstractmethod
 from app.services.ai.schemas import MnemonicResult
 
 
-class AIProvider(ABC):
+class MnemonicProvider(ABC):
     """Abstract base class every mnemonic-generation provider must implement."""
 
     @property
@@ -51,3 +56,7 @@ class AIProvider(ABC):
                 (network failure, malformed response, timeout, etc.).
         """
         raise NotImplementedError
+
+
+# Backward-compatibility alias — remove after all call sites are updated.
+AIProvider = MnemonicProvider

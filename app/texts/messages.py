@@ -151,9 +151,19 @@ MESSAGES: Final[dict[str, dict[str, str]]] = {
         ),
     },
     "btn_regenerate": {
-        "uz": "🔄 Boshqa versiya yarating",
-        "en": "🔄 Generate Another Mnemonic",
-        "ru": "🔄 Сгенерировать другую версию",
+        "uz": "🔄 Qayta tuzish",
+        "en": "🔄 Regenerate",
+        "ru": "🔄 Регенерировать"
+    },
+    "btn_pronunciation": {
+        "uz": "🔊 Talaffuz",
+        "en": "🔊 Pronunciation",
+        "ru": "🔊 Произношение",
+    },
+    "pron_cap": {
+        "uz": "@TryMemoraBot orqali tezroq o'rganing!",
+        "en": "Learn faster with @TryMemoraBot!",
+        "ru": "Учите быстрее с @TryMemoraBot!",
     },
     "btn_helpful": {"uz": "👍 Foydali", "en": "👍 Helpful", "ru": "👍 Полезно"},
     "btn_helpful_selected": {
@@ -1652,6 +1662,542 @@ MESSAGES: Final[dict[str, dict[str, str]]] = {
         "uz": "Hozirgi versiyani saqlash",
         "en": "Keep Current",
         "ru": "\u041e\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u0442\u0435\u043a\u0443\u0449\u0443\u044e",
+    },
+
+    # ── AI Chat (Feature A) — additive, no existing keys changed ─────────
+    "btn_ai_chat": {
+        "uz": "🤖 AI Suhbat",
+        "en": "🤖 AI Chat",
+        "ru": "🤖 ИИ-чат",
+    },
+    "ai_chat.welcome": {
+        "uz": (
+            "🤖 <b>AI Suhbat</b>\n\n"
+            "Men sizning shaxsiy o'qish yordamchingizman. "
+            "Ingliz tili, grammatika, lug'at, IELTS yoki har qanday savol bo'yicha yozing.\n\n"
+            "💡 Suhbatni tugatish uchun /end yoki tugmani bosing."
+        ),
+        "en": (
+            "🤖 <b>AI Chat</b>\n\n"
+            "I'm your personal learning assistant. "
+            "Ask me anything about English, grammar, vocabulary, IELTS, or any topic.\n\n"
+            "💡 Type /end or tap the button to end the session."
+        ),
+        "ru": (
+            "🤖 <b>ИИ-чат</b>\n\n"
+            "Я ваш персональный помощник по обучению. "
+            "Спрашивайте о чём угодно: английский, грамматика, словарный запас, IELTS.\n\n"
+            "💡 Введите /end или нажмите кнопку, чтобы завершить сессию."
+        ),
+    },
+    "ai_chat.thinking": {
+        "uz": "🤔 O'ylayapman...",
+        "en": "🤔 Thinking...",
+        "ru": "🤔 Думаю...",
+    },
+    "ai_chat.error": {
+        "uz": "❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.",
+        "en": "❌ Something went wrong. Please try again.",
+        "ru": "❌ Что-то пошло не так. Попробуйте ещё раз.",
+    },
+    "ai_chat.session_ended": {
+        "uz": "✅ Suhbat yakunlandi. Bosh sahifaga qaytdingiz.",
+        "en": "✅ Session ended. Returned to home.",
+        "ru": "✅ Сессия завершена. Возврат на главную.",
+    },
+    "ai_chat.new_session": {
+        "uz": "🔄 Yangi suhbat boshlandi.",
+        "en": "🔄 New session started.",
+        "ru": "🔄 Новая сессия началась.",
+    },
+    "ai_chat.no_router": {
+        "uz": "⚠️ AI xizmat hozirda mavjud emas. Iltimos, keyinroq urinib ko'ring.",
+        "en": "⚠️ AI service is unavailable right now. Please try again later.",
+        "ru": "⚠️ Сервис ИИ временно недоступен. Попробуйте позже.",
+    },
+    "ai_chat.btn_end": {
+        "uz": "❌ Suhbatni tugatish",
+        "en": "❌ End Chat",
+        "ru": "❌ Завершить чат",
+    },
+    "ai_chat.btn_new": {
+        "uz": "🔄 Yangi suhbat",
+        "en": "🔄 New Chat",
+        "ru": "🔄 Новый чат",
+    },
+
+    # ── Quiz (Feature C) — additive, no existing keys changed ────────────
+    "btn_quiz": {
+        "uz": "🧠 Quiz",
+        "en": "🧠 Quiz",
+        "ru": "🧠 Квиз",
+    },
+    "quiz.welcome": {
+        "uz": "🧠 <b>Quiz</b>\n\nQanday tur quiz o'ynashni xohlaysiz?",
+        "en": "🧠 <b>Quiz</b>\n\nWhat type of quiz would you like?",
+        "ru": "🧠 <b>Квиз</b>\n\nКакой тип квиза вы хотите?",
+    },
+    "quiz.generating": {
+        "uz": "⚙️ Quiz tayyorlanmoqda...",
+        "en": "⚙️ Generating your quiz...",
+        "ru": "⚙️ Генерирую квиз...",
+    },
+    "quiz.question_header": {
+        "uz": "❓ Savol {current}/{total}",
+        "en": "❓ Question {current}/{total}",
+        "ru": "❓ Вопрос {current}/{total}",
+    },
+    "quiz.results": {
+        "uz": (
+            "🏆 <b>Quiz yakunlandi!</b>\n\n"
+            "📊 Natija: <b>{correct}/{total}</b>\n"
+            "✅ To'g'ri: {correct}\n"
+            "❌ Noto'g'ri: {wrong}\n"
+            "🎯 Aniqlik: {accuracy}%\n"
+            "⏱ Vaqt: {time}s"
+        ),
+        "en": (
+            "🏆 <b>Quiz Complete!</b>\n\n"
+            "📊 Score: <b>{correct}/{total}</b>\n"
+            "✅ Correct: {correct}\n"
+            "❌ Wrong: {wrong}\n"
+            "🎯 Accuracy: {accuracy}%\n"
+            "⏱ Time: {time}s"
+        ),
+        "ru": (
+            "🏆 <b>Квиз завершён!</b>\n\n"
+            "📊 Результат: <b>{correct}/{total}</b>\n"
+            "✅ Правильно: {correct}\n"
+            "❌ Неправильно: {wrong}\n"
+            "🎯 Точность: {accuracy}%\n"
+            "⏱ Время: {time}с"
+        ),
+    },
+    "quiz.weak_topics": {
+        "uz": "📝 Takrorlash kerak: {words}",
+        "en": "📝 Review these: {words}",
+        "ru": "📝 Повторить: {words}",
+    },
+    "quiz.error": {
+        "uz": "❌ Quiz yaratishda xato. Iltimos, qayta urinib ko'ring.",
+        "en": "❌ Failed to generate quiz. Please try again.",
+        "ru": "❌ Не удалось создать квиз. Попробуйте ещё раз.",
+    },
+    "quiz.no_router": {
+        "uz": "⚠️ AI xizmat hozirda mavjud emas.",
+        "en": "⚠️ AI service is unavailable right now.",
+        "ru": "⚠️ Сервис ИИ временно недоступен.",
+    },
+    "quiz.no_vocabulary": {
+        "uz": "📚 Quiz uchun so'zlar yetarli emas. Avval bir nechta so'z qidiring.",
+        "en": "📚 Not enough vocabulary for a quiz. Search for some words first.",
+        "ru": "📚 Недостаточно слов для квиза. Сначала найдите несколько слов.",
+    },
+    "quiz.not_enough_vocab": {
+        "uz": "📚 Lug'atingizda faqat {count} ta so'z bor. Lug'at quizi uchun kamida {min} ta so'z kerak.\n\nAvval ko'proq so'z qidiring yoki boshqa quiz turini tanlang.",
+        "en": "📚 Your vocabulary has only {count} word(s). A vocabulary quiz needs at least {min} words.\n\nSearch for more words first, or choose a different quiz type.",
+        "ru": "📚 В вашем словаре только {count} слов(а). Для словарного квиза нужно минимум {min} слов.\n\nСначала найдите больше слов или выберите другой тип квиза.",
+    },
+    "quiz.listening_coming_soon": {
+        "uz": "🎧 Tinglash quizi tez orada chiqadi!\n\nBoshqa quiz turini tanlang.",
+        "en": "🎧 Listening Quiz is coming soon!\n\nPlease choose a different quiz type for now.",
+        "ru": "🎧 Квиз на аудирование скоро будет!\n\nПожалуйста, выберите другой тип квиза.",
+    },
+    "quiz.reading_passage": {
+        "uz": "📖 <b>Matn:</b>\n\n{passage}\n\n<i>Matnni o'qib chiqing, so'ng savollarni boshlang.</i>",
+        "en": "📖 <b>Passage:</b>\n\n{passage}\n\n<i>Read the passage above, then start the questions.</i>",
+        "ru": "📖 <b>Текст:</b>\n\n{passage}\n\n<i>Прочитайте текст выше, затем начните вопросы.</i>",
+    },
+    "quiz.aborted": {
+        "uz": "✅ Quiz to'xtatildi.",
+        "en": "✅ Quiz ended.",
+        "ru": "✅ Квиз завершён.",
+    },
+    "quiz.btn.vocabulary": {
+        "uz": "📚 Lug'at",
+        "en": "📚 Vocabulary",
+        "ru": "📚 Словарь",
+    },
+    "quiz.btn.grammar": {
+        "uz": "📝 Grammatika",
+        "en": "📝 Grammar",
+        "ru": "📝 Грамматика",
+    },
+    "quiz.btn.gap_fill": {
+        "uz": "✏️ Bo'sh joy",
+        "en": "✏️ Gap Fill",
+        "ru": "✏️ Пропуск",
+    },
+    "quiz.btn.reading": {
+        "uz": "📖 O'qish",
+        "en": "📖 Reading",
+        "ru": "📖 Чтение",
+    },
+    "quiz.btn.listening": {
+        "uz": "🎧 Tinglash",
+        "en": "🎧 Listening",
+        "ru": "🎧 Аудирование",
+    },
+    "quiz.btn.mixed": {
+        "uz": "🎲 Aralash",
+        "en": "🎲 Mixed",
+        "ru": "🎲 Смешанный",
+    },
+    "quiz.btn.end": {
+        "uz": "⛔ Quizni to'xtatish",
+        "en": "⛔ End Quiz",
+        "ru": "⛔ Завершить квиз",
+    },
+    "quiz.btn.new_quiz": {
+        "uz": "🔄 Yangi quiz",
+        "en": "🔄 New Quiz",
+        "ru": "🔄 Новый квиз",
+    },
+    "quiz.btn.reading_start": {
+        "uz": "▶️ Savollarni boshlash",
+        "en": "▶️ Start Questions",
+        "ru": "▶️ Начать вопросы",
+    },
+    # Legacy button keys kept for backward compatibility
+    "quiz.btn.meaning": {
+        "uz": "📖 Ma'no",
+        "en": "📖 Meaning",
+        "ru": "📖 Значение",
+    },
+    "quiz.btn.synonym": {
+        "uz": "🔄 Sinonim",
+        "en": "🔄 Synonym",
+        "ru": "🔄 Синоним",
+    },
+    "quiz.btn.document": {
+        "uz": "📄 Hujjat",
+        "en": "📄 Document",
+        "ru": "📄 Документ",
+    },
+
+    # ── Learn section ──────────────────────────────────────────────────── #
+    "btn_learn": {
+        "uz": "📚 O'rganish",
+        "en": "📚 Learn",
+        "ru": "📚 Учиться",
+    },
+    "learn.welcome": {
+        "uz": "📚 <b>O'rganish bo'limi</b>\n\nNimani o'rganmoqchisiz?",
+        "en": "📚 <b>Learn</b>\n\nWhat would you like to study?",
+        "ru": "📚 <b>Обучение</b>\n\nЧто вы хотите изучить?",
+    },
+    "learn.btn.grammar": {
+        "uz": "📖 Grammatika",
+        "en": "📖 Grammar",
+        "ru": "📖 Грамматика",
+    },
+    # ── Grammar Learning ───────────────────────────────────────────────── #
+    "grammar.topics_title": {
+        "uz": "📘 <b>Grammatika mavzulari</b>\n\nQaysi mavzuni o'rganmoqchisiz?",
+        "en": "📘 <b>Grammar Topics</b>\n\nWhich topic would you like to study?",
+        "ru": "📘 <b>Темы грамматики</b>\n\nКакую тему вы хотите изучить?",
+    },
+    "grammar.no_topics": {
+        "uz": "📭 Hozircha grammatika mavzulari yo'q. Iltimos, keyinroq qaytib keling.",
+        "en": "📭 No grammar topics available yet. Please check back later.",
+        "ru": "📭 Пока нет тем по грамматике. Пожалуйста, зайдите позже.",
+    },
+    "grammar.lesson_header": {
+        "uz": "📖 <b>{title}</b>",
+        "en": "📖 <b>{title}</b>",
+        "ru": "📖 <b>{title}</b>",
+    },
+    "grammar.lesson_error": {
+        "uz": "⚠️ Darslikni yuklashda xato yuz berdi. Iltimos, keyinroq urinib ko'ring.",
+        "en": "⚠️ Could not load the lesson. Please try again later.",
+        "ru": "⚠️ Не удалось загрузить урок. Пожалуйста, попробуйте позже.",
+    },
+    "grammar.lesson_not_configured": {
+        "uz": "⚠️ Bu mavzu uchun darslik hali konfiguratsiya qilinmagan.",
+        "en": "⚠️ This topic's lesson has not been configured yet.",
+        "ru": "⚠️ Урок по этой теме ещё не настроен.",
+    },
+    "grammar.channel_not_configured": {
+        "uz": "⚠️ Grammar kanal konfiguratsiya qilinmagan. Administrator bilan bog'laning.",
+        "en": "⚠️ Grammar channel is not configured. Please contact the administrator.",
+        "ru": "⚠️ Канал грамматики не настроен. Обратитесь к администратору.",
+    },
+    "grammar.ask_ai_prompt": {
+        "uz": "❓ <b>{title}</b> haqida savolingizni yozing:",
+        "en": "❓ Ask your question about <b>{title}</b>:",
+        "ru": "❓ Задайте ваш вопрос о <b>{title}</b>:",
+    },
+    "grammar.ask_ai_thinking": {
+        "uz": "🤔 O'ylayapman...",
+        "en": "🤔 Thinking...",
+        "ru": "🤔 Думаю...",
+    },
+    "grammar.ask_ai_error": {
+        "uz": "⚠️ Javob olishda xato. Iltimos, qayta urinib ko'ring.",
+        "en": "⚠️ Could not get an answer. Please try again.",
+        "ru": "⚠️ Не удалось получить ответ. Пожалуйста, попробуйте снова.",
+    },
+    "grammar.quiz_generating": {
+        "uz": "⚙️ Quiz tayyorlanmoqda...",
+        "en": "⚙️ Generating quiz...",
+        "ru": "⚙️ Генерирую квиз...",
+    },
+    "grammar.quiz_error": {
+        "uz": "⚠️ Quiz yaratishda xato. Iltimos, qayta urinib ko'ring.",
+        "en": "⚠️ Could not generate the quiz. Please try again.",
+        "ru": "⚠️ Не удалось создать квиз. Пожалуйста, попробуйте снова.",
+    },
+    "grammar.quiz_results": {
+        "uz": "📊 <b>Natijalar</b>\n\n✅ To'g'ri: {correct}/{total}\n📈 Aniqlik: {accuracy}%\n🎯 Mahorat: {mastery}%",
+        "en": "📊 <b>Results</b>\n\n✅ Correct: {correct}/{total}\n📈 Accuracy: {accuracy}%\n🎯 Mastery: {mastery}%",
+        "ru": "📊 <b>Результаты</b>\n\nCorrect: {correct}/{total}\n📈 Точность: {accuracy}%\n🎯 Мастерство: {mastery}%",
+    },
+    "grammar.quiz_completed_status": {
+        "uz": "🏆 Siz bu mavzuni o'zlashtirdingiz!",
+        "en": "🏆 You have mastered this topic!",
+        "ru": "🏆 Вы освоили эту тему!",
+    },
+    "grammar.btn.ask_ai": {
+        "uz": "❓ AI dan so'rash",
+        "en": "❓ Ask AI",
+        "ru": "❓ Спросить AI",
+    },
+    "grammar.btn.test": {
+        "uz": "🧠 O'zingni sinab ko'r",
+        "en": "🧠 Test Yourself",
+        "ru": "🧠 Проверь себя",
+    },
+    "grammar.btn.back_topics": {
+        "uz": "⬅️ Mavzularga qaytish",
+        "en": "⬅️ Back to Grammar",
+        "ru": "⬅️ Назад к темам",
+    },
+    "grammar.btn.stop_asking": {
+        "uz": "🔙 Darslikka qaytish",
+        "en": "🔙 Back to Lesson",
+        "ru": "🔙 Вернуться к уроку",
+    },
+    "grammar.btn.test_again": {
+        "uz": "🔄 Qayta sinash",
+        "en": "🔄 Test Again",
+        "ru": "🔄 Пройти снова",
+    },
+    "btn_home": {
+        "uz": "🏠 Bosh sahifa",
+        "en": "🏠 Home",
+        "ru": "🏠 Главная",
+    },
+
+    # ── Admin: Grammar Lessons management ─────────────────────────────── #
+    "admin.btn.grammar_lessons": {
+        "uz": "📚 Grammar Darslar",
+        "en": "📚 Grammar Lessons",
+        "ru": "📚 Уроки грамматики",
+    },
+    "admin.grammar.menu_title": {
+        "uz": "📚 <b>Grammar Darslar boshqaruvi</b>\n\nJami: {total} ta dars",
+        "en": "📚 <b>Grammar Lessons Management</b>\n\nTotal: {total} lessons",
+        "ru": "📚 <b>Управление уроками грамматики</b>\n\nВсего: {total} уроков",
+    },
+    "admin.grammar.btn.add_forward": {
+        "uz": "➕ Dars qo\'shish (forward)",
+        "en": "➕ Add Lesson (forward)",
+        "ru": "➕ Добавить урок (форвард)",
+    },
+    "admin.grammar.btn.add_manual": {
+        "uz": "⌨️ Dars qo\'shish (ID)",
+        "en": "⌨️ Add Lesson (ID)",
+        "ru": "⌨️ Добавить урок (ID)",
+    },
+    "admin.grammar.btn.list": {
+        "uz": "📋 Barcha darslar",
+        "en": "📋 All Lessons",
+        "ru": "📋 Все уроки",
+    },
+    "admin.grammar.btn.back": {
+        "uz": "⬅️ Admin menyuga",
+        "en": "⬅️ Admin Menu",
+        "ru": "⬅️ Меню администратора",
+    },
+    "admin.grammar.btn.edit": {
+        "uz": "✏️ Tahrirlash",
+        "en": "✏️ Edit",
+        "ru": "✏️ Редактировать",
+    },
+    "admin.grammar.btn.toggle_enable": {
+        "uz": "🟢 Yoqish",
+        "en": "🟢 Enable",
+        "ru": "🟢 Включить",
+    },
+    "admin.grammar.btn.toggle_disable": {
+        "uz": "🔴 O\'chirish",
+        "en": "🔴 Disable",
+        "ru": "🔴 Отключить",
+    },
+    "admin.grammar.btn.delete": {
+        "uz": "🗑 O\'chirish",
+        "en": "🗑 Delete",
+        "ru": "🗑 Удалить",
+    },
+    "admin.grammar.btn.move_up": {
+        "uz": "⬆️ Yuqoriga",
+        "en": "⬆️ Move Up",
+        "ru": "⬆️ Вверх",
+    },
+    "admin.grammar.btn.move_down": {
+        "uz": "⬇️ Pastga",
+        "en": "⬇️ Move Down",
+        "ru": "⬇️ Вниз",
+    },
+    "admin.grammar.btn.edit_name": {
+        "uz": "📝 Nomni o\'zgartirish",
+        "en": "📝 Edit Name",
+        "ru": "📝 Изменить название",
+    },
+    "admin.grammar.btn.edit_button": {
+        "uz": "🔘 Tugma nomini o\'zgartirish",
+        "en": "🔘 Edit Button Name",
+        "ru": "🔘 Изменить название кнопки",
+    },
+    "admin.grammar.btn.edit_msgid": {
+        "uz": "🔗 Xabar ID\'ni o\'zgartirish",
+        "en": "🔗 Edit Message ID",
+        "ru": "🔗 Изменить ID сообщения",
+    },
+    "admin.grammar.btn.confirm_delete": {
+        "uz": "✅ Ha, o\'chirish",
+        "en": "✅ Yes, Delete",
+        "ru": "✅ Да, удалить",
+    },
+    "admin.grammar.btn.cancel": {
+        "uz": "❌ Bekor qilish",
+        "en": "❌ Cancel",
+        "ru": "❌ Отмена",
+    },
+    "admin.grammar.prompt_forward": {
+        "uz": "📤 Grammar kanalidan darslikni forward qiling yoki xabar ID kiriting:",
+        "en": "📤 Forward the grammar lesson from the configured channel, or enter a message ID:",
+        "ru": "📤 Перешлите урок грамматики из настроенного канала или введите ID сообщения:",
+    },
+    "admin.grammar.prompt_manual_id": {
+        "uz": "⌨️ Grammar kanali xabar ID\'sini kiriting (raqam):",
+        "en": "⌨️ Enter the message ID from the grammar channel (number):",
+        "ru": "⌨️ Введите ID сообщения из канала грамматики (число):",
+    },
+    "admin.grammar.prompt_topic_name": {
+        "uz": "📝 Grammatika mavzusi nomini kiriting:\nMisol: Present Perfect",
+        "en": "📝 Enter the grammar topic name:\nExample: Present Perfect",
+        "ru": "📝 Введите название темы грамматики:\nПример: Present Perfect",
+    },
+    "admin.grammar.prompt_button_name": {
+        "uz": "🔘 Tugma nomini kiriting (yoki /skip bosing):\nMisol: 🟢 Present Perfect",
+        "en": "🔘 Enter the button name (or send /skip to use topic name):\nExample: 🟢 Present Perfect",
+        "ru": "🔘 Введите название кнопки (или /skip для использования названия темы):\nПример: 🟢 Present Perfect",
+    },
+    "admin.grammar.added": {
+        "uz": "✅ Grammar darsi muvaffaqiyatli qo\'shildi!\n\n📖 Mavzu: {title}\n🔘 Tugma: {button_name}\n🔗 Xabar ID: {message_id}\n📊 Holat: Faol",
+        "en": "✅ Grammar lesson added successfully!\n\n📖 Topic: {title}\n🔘 Button: {button_name}\n🔗 Message ID: {message_id}\n📊 Status: Active",
+        "ru": "✅ Урок грамматики успешно добавлен!\n\n📖 Тема: {title}\n🔘 Кнопка: {button_name}\n🔗 ID сообщения: {message_id}\n📊 Статус: Активен",
+    },
+    "admin.grammar.list_empty": {
+        "uz": "📭 Hozircha grammar darslar yo\'q.",
+        "en": "📭 No grammar lessons yet.",
+        "ru": "📭 Уроков грамматики пока нет.",
+    },
+    "admin.grammar.topic_card": {
+        "uz": "#{id} {status} <b>{title}</b>\n🔘 {button_name}\n🔗 msg_id: {message_id}\n📊 Tartib: {order}",
+        "en": "#{id} {status} <b>{title}</b>\n🔘 {button_name}\n🔗 msg_id: {message_id}\n📊 Order: {order}",
+        "ru": "#{id} {status} <b>{title}</b>\n🔘 {button_name}\n🔗 msg_id: {message_id}\n📊 Порядок: {order}",
+    },
+    "admin.grammar.enabled": {
+        "uz": "🟢 Dars yoqildi: {title}",
+        "en": "🟢 Lesson enabled: {title}",
+        "ru": "🟢 Урок включён: {title}",
+    },
+    "admin.grammar.disabled": {
+        "uz": "🔴 Dars o\'chirildi: {title}",
+        "en": "🔴 Lesson disabled: {title}",
+        "ru": "🔴 Урок отключён: {title}",
+    },
+    "admin.grammar.confirm_delete_prompt": {
+        "uz": "⚠️ <b>{title}</b> ni o\'chirishga ishonchingiz komilmi?\n\nFoydalanuvchi progressi saqlanib qoladi.",
+        "en": "⚠️ Are you sure you want to delete <b>{title}</b>?\n\nUser progress will be preserved.",
+        "ru": "⚠️ Вы уверены, что хотите удалить <b>{title}</b>?\n\nПрогресс пользователей будет сохранён.",
+    },
+    "admin.grammar.deleted": {
+        "uz": "🗑 Dars o\'chirildi: {title}",
+        "en": "🗑 Lesson deleted: {title}",
+        "ru": "🗑 Урок удалён: {title}",
+    },
+    "admin.grammar.delete_cancelled": {
+        "uz": "❌ O\'chirish bekor qilindi.",
+        "en": "❌ Deletion cancelled.",
+        "ru": "❌ Удаление отменено.",
+    },
+    "admin.grammar.moved": {
+        "uz": "↕️ Tartib o\'zgartirildi.",
+        "en": "↕️ Order updated.",
+        "ru": "↕️ Порядок обновлён.",
+    },
+    "admin.grammar.edit_menu": {
+        "uz": "✏️ Nima o\'zgartirmoqchisiz?\n\n<b>{title}</b>",
+        "en": "✏️ What would you like to edit?\n\n<b>{title}</b>",
+        "ru": "✏️ Что хотите изменить?\n\n<b>{title}</b>",
+    },
+    "admin.grammar.prompt_new_name": {
+        "uz": "📝 Yangi mavzu nomini kiriting:",
+        "en": "📝 Enter the new topic name:",
+        "ru": "📝 Введите новое название темы:",
+    },
+    "admin.grammar.prompt_new_button": {
+        "uz": "🔘 Yangi tugma nomini kiriting:",
+        "en": "🔘 Enter the new button name:",
+        "ru": "🔘 Введите новое название кнопки:",
+    },
+    "admin.grammar.prompt_new_msgid": {
+        "uz": "🔗 Yangi xabar ID kiriting yoki yangi postni forward qiling:",
+        "en": "🔗 Enter a new message ID or forward the new channel post:",
+        "ru": "🔗 Введите новый ID сообщения или перешлите новый пост из канала:",
+    },
+    "admin.grammar.updated": {
+        "uz": "✅ Dars yangilandi: {title}",
+        "en": "✅ Lesson updated: {title}",
+        "ru": "✅ Урок обновлён: {title}",
+    },
+    "admin.grammar.error.wrong_channel": {
+        "uz": "❌ Bu post konfiguratsiya qilingan grammar kanalidan emas.\nChannel ID: {expected}",
+        "en": "❌ This post is not from the configured grammar channel.\nExpected channel: {expected}",
+        "ru": "❌ Этот пост не из настроенного канала грамматики.\nОжидаемый канал: {expected}",
+    },
+    "admin.grammar.error.duplicate_msg_id": {
+        "uz": "⚠️ Bu xabar ID allaqachon ro\'yxatdan o\'tgan.",
+        "en": "⚠️ This message ID is already registered.",
+        "ru": "⚠️ Этот ID сообщения уже зарегистрирован.",
+    },
+    "admin.grammar.error.channel_not_configured": {
+        "uz": "❌ GRAMMAR_CHANNEL_ID sozlanmagan. .env faylini tekshiring.",
+        "en": "❌ GRAMMAR_CHANNEL_ID is not configured. Check your .env file.",
+        "ru": "❌ GRAMMAR_CHANNEL_ID не настроен. Проверьте файл .env.",
+    },
+    "admin.grammar.error.invalid_msg_id": {
+        "uz": "❌ Noto\'g\'ri xabar ID. Faqat raqam kiriting.",
+        "en": "❌ Invalid message ID. Please enter a number only.",
+        "ru": "❌ Неверный ID сообщения. Введите только число.",
+    },
+    "admin.grammar.error.msg_not_found": {
+        "uz": "❌ Kanal xabari topilmadi. ID ni tekshiring va bot kanal a\'zosi ekanligini tekshiring.",
+        "en": "❌ Channel message not found. Check the ID and that the bot is a channel member.",
+        "ru": "❌ Сообщение в канале не найдено. Проверьте ID и убедитесь, что бот является участником канала.",
+    },
+    "admin.grammar.error.general": {
+        "uz": "❌ Xato yuz berdi. Iltimos, qayta urinib ko\'ring.",
+        "en": "❌ An error occurred. Please try again.",
+        "ru": "❌ Произошла ошибка. Пожалуйста, попробуйте снова.",
+    },
+    "admin.grammar.channel_not_configured_user": {
+        "uz": "❌ Bu grammar darsi vaqtincha mavjud emas.",
+        "en": "❌ This grammar lesson is temporarily unavailable.",
+        "ru": "❌ Этот урок грамматики временно недоступен.",
     },
 
 }

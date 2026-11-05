@@ -19,7 +19,7 @@ class DashboardCallback(CallbackData, prefix="dash"):
 class MneVocaCallback(CallbackData, prefix="mnv"):
     """Payload for the MneVoca entry/result screen buttons."""
 
-    action: str  # "another" | "home" | "regenerate"
+    action: str  # "another" | "home" | "regenerate"  | "pronunciation"
     mnemonic_id: int = 0  # set for "regenerate"; unused (default) for the others
 
 
@@ -92,6 +92,86 @@ class VocabularyWordCallback(CallbackData, prefix="vocw"):
     entry_id: int = 0
     page: int = 0
     search_query: str = ""  # "" = no filter; carries search context through navigation
+
+
+class AIChatCallback(CallbackData, prefix="chat"):
+    """Payload for AI Chat session controls.
+
+    action:
+      "new"       — start a new session (clears current session)
+      "end"       — end current session and return to dashboard
+      "history"   — show recent sessions list (future)
+    session_id:   FeatureOutput.id of the active ChatSessionPayload; 0 = no session
+    """
+
+    action: str
+    session_id: int = 0
+
+
+class QuizCallback(CallbackData, prefix="quiz"):
+    """Payload for Quiz feature controls (Feature C).
+
+    action:
+      "start"          — begin quiz with the selected type
+      "end"            — abort current quiz and return to dashboard
+      "reading_begin"  — user tapped "Start Questions" after reading the passage
+    quiz_type:   "vocabulary" | "grammar" | "gap_fill" | "reading" | "listening" | "mixed"
+    output_id:   FeatureOutput.id of the active quiz (0 = not yet created)
+    """
+
+    action: str
+    quiz_type: str = "mixed"
+    output_id: int = 0
+
+
+
+class AdminGrammarCallback(CallbackData, prefix="admgram"):
+    """Payload for admin Grammar Lessons management actions.
+
+    action:
+      "menu"          — show grammar lessons admin menu
+      "list"          — list all lessons
+      "add_forward"   — start add-lesson flow (forward from channel)
+      "add_manual"    — start add-lesson flow (manual message_id)
+      "edit"          — edit a specific topic
+      "edit_name"     — edit topic name
+      "edit_button"   — edit button name
+      "edit_msgid"    — edit message_id
+      "toggle"        — enable/disable topic
+      "delete"        — start delete flow
+      "delete_confirm"— confirm deletion
+      "move_up"       — move topic up in order
+      "move_down"     — move topic down in order
+    topic_id:   GrammarTopic.id (0 = not applicable)
+    page:       pagination page for list view
+    """
+
+    action: str
+    topic_id: int = 0
+    page: int = 0
+
+
+class LearnCallback(CallbackData, prefix="learn"):
+    """Payload for the Learn section entry button on the dashboard."""
+
+    action: str  # "grammar" | "home"
+
+
+class GrammarCallback(CallbackData, prefix="gram"):
+    """Payload for Grammar Learning feature controls.
+
+    action:
+      "topics"      — show grammar topic selection keyboard
+      "open_topic"  — open a specific grammar lesson
+      "ask_ai"      — enter grammar Q&A FSM for this topic
+      "test"        — start a grammar quiz for this topic
+    topic_id:  GrammarTopic.id (0 = not applicable, e.g. for "topics" action)
+    page:      pagination page for "topics" action
+    """
+
+    action: str
+    topic_id: int = 0
+    page: int = 0
 
 
 class AIGatewayCallback(CallbackData, prefix="gw"):

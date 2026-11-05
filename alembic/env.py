@@ -20,10 +20,17 @@ from app.database.base import Base
 from app.database.models import (  # noqa: F401
     CoinTransaction,
     CoinWallet,
+    ContentChunk,
+    ContentSource,
+    FeatureOutput,
+    LearningActivity,
+    MnemonicFeedback,
     MnemonicHistory,
     Referral,
     User,
+    UserMemory,
     UserSettings,
+    VocabularyEntry,
 )
 
 config = context.config

@@ -22,7 +22,7 @@ import logging
 import aiohttp
 
 from app.core.exceptions import AIProviderError
-from app.services.ai.base import AIProvider
+from app.services.ai.base import MnemonicProvider
 from app.services.ai.knowledge_engine.exceptions import KnowledgeEngineError
 from app.services.ai.mnemonic_prompt import build_mnemonic_prompt
 from app.services.ai.schemas import MnemonicResult
@@ -54,7 +54,7 @@ def _strip_fences(text: str) -> str:
     return s.strip()
 
 
-class GroqProvider(AIProvider):
+class GroqProvider(MnemonicProvider):
     """Generates mnemonics via Groq's OpenAI-compatible chat completions API."""
 
     def __init__(

@@ -9,7 +9,7 @@ from __future__ import annotations
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.keyboards.callback_data import AdminCallback, AIGatewayCallback, BroadcastCallback
+from app.keyboards.callback_data import AdminCallback, AdminGrammarCallback, AIGatewayCallback, BroadcastCallback
 from app.texts.messages import t
 
 
@@ -25,8 +25,9 @@ def get_admin_menu_keyboard(lang: str = "uz") -> InlineKeyboardMarkup:
     builder.button(text=t("admin.btn.referral", lang),   callback_data=AdminCallback(action="referral_ctrl"))
     builder.button(text=t("admin.btn.broadcast", lang),  callback_data=AdminCallback(action="broadcast"))
     builder.button(text=t("admin.btn.gateway", lang),    callback_data=AIGatewayCallback(action="status"))
+    builder.button(text=t("admin.btn.grammar_lessons", lang), callback_data=AdminGrammarCallback(action="menu"))
     builder.button(text=t("admin.btn.close", lang),      callback_data=AdminCallback(action="close"))
-    builder.adjust(1)
+    builder.adjust(2)
     return builder.as_markup()
 
 

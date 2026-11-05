@@ -40,7 +40,10 @@ def get_mnevoca_result_keyboard(
 
     builder.button(
         text=t("btn_regenerate", lang),
-        callback_data=MneVocaCallback(action="regenerate", mnemonic_id=mnemonic_id),
+        callback_data=MneVocaCallback(action="regenerate", mnemonic_id=mnemonic_id))
+    builder.button(
+        text=t("btn_pronunciation", lang),
+        callback_data=MneVocaCallback(action="pronunciation", mnemonic_id=mnemonic_id),
     )
 
     helpful_label = t("btn_helpful_selected" if user_rating is True else "btn_helpful", lang)
@@ -59,5 +62,5 @@ def get_mnevoca_result_keyboard(
     builder.button(text=t("btn_another_word", lang), callback_data=MneVocaCallback(action="another"))
     builder.button(text=t("btn_back_home", lang), callback_data=MneVocaCallback(action="home"))
 
-    builder.adjust(1, 2, 2)
+    builder.adjust(2, 2, 2)
     return builder.as_markup()

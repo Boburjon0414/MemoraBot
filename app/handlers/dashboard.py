@@ -36,13 +36,6 @@ async def on_home(callback: CallbackQuery, settings_service: SettingsService) ->
     await callback.answer()
 
 
-@router.callback_query(DashboardCallback.filter(F.action == "ai_chat"))
-async def on_ai_chat(callback: CallbackQuery, settings_service: SettingsService) -> None:
-    """AI Chat is a defined-but-not-yet-built feature; see README for where it plugs in."""
-    lang = await settings_service.get_language(callback.from_user.id)
-    await callback.answer(t("coming_soon", lang), show_alert=True)
-
-
 @router.callback_query(DashboardCallback.filter(F.action == "statistics"))
 async def on_statistics(callback: CallbackQuery, settings_service: SettingsService) -> None:
     """Statistics is a defined-but-not-yet-built feature; see README for where it plugs in."""

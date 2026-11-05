@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
 
 from app.config import Settings
-from app.services.ai.base import AIProvider
+from app.services.ai.base import MnemonicProvider
 from app.services.ai.gemini_provider import GeminiProvider
 from app.services.ai.groq_provider import GroqProvider
 from app.services.ai.gateway import AIGateway, RuntimeConfig
@@ -28,7 +28,7 @@ from app.services.ai.mock_provider import MockProvider
 logger = logging.getLogger(__name__)
 
 
-async def create_ai_provider(settings: Settings) -> AIProvider:
+async def create_ai_provider(settings: Settings) -> MnemonicProvider:
     """Instantiate the AIProvider (or AIGateway) configured in settings.
 
     Falls back to MockProvider when a real provider is configured but
@@ -89,7 +89,7 @@ async def create_ai_provider(settings: Settings) -> AIProvider:
     return MockProvider()
 
 
-async def _create_gateway(settings: Settings) -> AIProvider:
+async def _create_gateway(settings: Settings) -> MnemonicProvider:
     """Build and return a fully configured AIGateway.
 
     Falls back to MockProvider if no keys are configured at all.

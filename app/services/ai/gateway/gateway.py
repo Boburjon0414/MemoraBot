@@ -33,7 +33,7 @@ import logging
 from dataclasses import dataclass, field
 
 from app.core.exceptions import AIProviderError
-from app.services.ai.base import AIProvider
+from app.services.ai.base import MnemonicProvider
 from app.services.ai.gateway.errors import (
     KeyInvalidError,
     ModelUnavailableError,
@@ -44,6 +44,7 @@ from app.services.ai.gateway.key_health import KeyHealth
 from app.services.ai.gateway.key_slot import GatewayKeySlot
 from app.services.ai.gateway.load_balancer import RoundRobinLoadBalancer
 from app.services.ai.gateway.runtime_config import RuntimeConfig
+from app.services.ai.router import AIRequest, AIResponse, AIRouter
 from app.services.ai.schemas import MnemonicResult
 
 logger = logging.getLogger(__name__)
@@ -65,8 +66,8 @@ class _ProviderPool:
 
 # ── Tier proxy ─────────────────────────────────────────────────────────────── #
 
-class TierProxy(AIProvider):
-    """Thin AIProvider wrapper that locks the gateway into a specific tier.
+class TierProxy(MnemonicProvider, AIRouter):
+    """Thin AIProvider + AIRouter wrapper that locks the gateway into a specific tier.
 
     ServicesMiddleware creates one of these per request:
         proxy = gateway.for_tier(is_premium=True)
@@ -74,6 +75,9 @@ class TierProxy(AIProvider):
 
     MnemonicService calls proxy.generate_mnemonic(word, avoid) and never
     knows whether it's talking to Gemini, Groq, or a fallback chain.
+
+    AIChatService, RAGService, QuizService etc. call proxy.complete(request)
+    and likewise never know which provider responded.
     """
 
     def __init__(self, gateway: "AIGateway", is_premium: bool) -> None:
@@ -96,11 +100,28 @@ class TierProxy(AIProvider):
             word, avoid=avoid, is_premium=self._is_premium
         )
 
+    async def complete(
+        self,
+        request: AIRequest,
+        *,
+        is_premium: bool = False,  # ignored — TierProxy already knows its tier
+    ) -> AIResponse:
+        """Route a generic AIRequest through this proxy's tier."""
+        return await self._gateway.complete_routed(
+            request, is_premium=self._is_premium
+        )
+
 
 # ── Main gateway ───────────────────────────────────────────────────────────── #
 
-class AIGateway(AIProvider):
-    """Production AI Gateway with free/premium pools, load balancing, and failover."""
+class AIGateway(MnemonicProvider, AIRouter):
+    """Production AI Gateway with free/premium pools, load balancing, and failover.
+
+    Implements both `MnemonicProvider` (for mnemonic generation) and `AIRouter`
+    (for all other AI features: chat, RAG, quiz, summary, presentations).
+    Both interfaces route through the same pool machinery, key rotation,
+    health tracking, and tier separation — zero duplication.
+    """
 
     def __init__(
         self,
@@ -262,6 +283,138 @@ class AIGateway(AIProvider):
 
             except Exception:
                 logger.exception("Unexpected error on %s", slot.label)
+
+        return None
+
+    # ── AIRouter interface ─────────────────────────────────────────────── #
+
+    async def complete(
+        self,
+        request: AIRequest,
+        *,
+        is_premium: bool = False,
+    ) -> AIResponse:
+        """Entry point for generic AI requests — routes to the free tier by default.
+
+        Prefer calling this via a `TierProxy` obtained from `for_tier()` so
+        the tier is determined once per request by `ServicesMiddleware`, not
+        per-call by each service.
+        """
+        return await self.complete_routed(request, is_premium=is_premium)
+
+    async def complete_routed(
+        self,
+        request: AIRequest,
+        is_premium: bool = False,
+    ) -> AIResponse:
+        """Full failover routing for a generic AIRequest through configured pools.
+
+        Mirrors `generate_mnemonic_routed()` exactly — same analytics tracking,
+        same maintenance-mode check, same provider priority ordering, same
+        pool exhaustion logic — but calls `slot.complete_request()` instead of
+        `slot.generate()`.
+        """
+        async with self._analytics_lock:
+            self._total_requests += 1
+            if is_premium:
+                self._premium_requests += 1
+            else:
+                self._free_requests += 1
+
+        if self._runtime.maintenance_mode:
+            async with self._analytics_lock:
+                self._total_errors += 1
+            raise AIProviderError(
+                "The AI service is temporarily in maintenance mode. "
+                "Please try again in a few minutes."
+            )
+
+        tier = "premium" if is_premium else "free"
+        tier_pools = self._pools.get(tier, {})
+
+        providers_to_try = [
+            p for p in self._runtime.provider_priority
+            if p in self._runtime.enabled_providers and p in tier_pools
+        ]
+
+        if not providers_to_try:
+            async with self._analytics_lock:
+                self._total_errors += 1
+            raise AIProviderError(
+                f"No AI providers are currently available for "
+                f"{'premium' if is_premium else 'free'} users. Please try again later."
+            )
+
+        fallback_recorded = False
+
+        for provider_idx, provider_name in enumerate(providers_to_try):
+            if provider_idx > 0 and not fallback_recorded:
+                async with self._analytics_lock:
+                    self._fallback_count += 1
+                fallback_recorded = True
+
+            pool = tier_pools[provider_name]
+            healthy = pool.healthy_slots()
+
+            if not healthy:
+                logger.warning(
+                    "All %s %s keys are unhealthy — skipping to next provider",
+                    provider_name, tier,
+                )
+                continue
+
+            result = await self._exhaust_pool_generic(
+                pool=pool,
+                healthy=healthy,
+                request=request,
+            )
+            if result is not None:
+                return result
+
+        async with self._analytics_lock:
+            self._total_errors += 1
+        raise AIProviderError(
+            "All AI providers are unavailable right now. "
+            "Please try again in a few minutes."
+        )
+
+    async def _exhaust_pool_generic(
+        self,
+        pool: _ProviderPool,
+        healthy: list[GatewayKeySlot],
+        request: AIRequest,
+    ) -> AIResponse | None:
+        """Try every healthy slot in the pool for a generic request, return result or None."""
+        remaining = list(healthy)
+
+        while remaining:
+            slot = await pool.load_balancer.pick(remaining)
+            if slot is None:
+                break
+
+            remaining = [s for s in remaining if s.key_index != slot.key_index]
+
+            try:
+                return await slot.complete_request(request)
+
+            except QuotaExceededError:
+                async with self._analytics_lock:
+                    self._quota_failures += 1
+                logger.warning("💸 Quota exceeded on %s — rotating key", slot.label)
+
+            except KeyInvalidError:
+                logger.error("🔑 Invalid key on %s — disabling permanently", slot.label)
+                await slot.health.disable()
+
+            except ProviderUnavailableError:
+                logger.warning("🔌 Provider unreachable via %s — skipping pool", slot.label)
+                break
+
+            except ModelUnavailableError:
+                logger.warning("🤖 All models exhausted on %s — skipping key", slot.label)
+
+            except Exception:
+                logger.exception("Unexpected error on %s (generic request)", slot.label)
 
         return None
 

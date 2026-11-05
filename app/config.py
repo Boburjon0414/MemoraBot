@@ -83,6 +83,29 @@ class Settings(BaseSettings):
     # ── Logging ───────────────────────────────────────────────────────── #
     log_level: str = "INFO"
 
+    # ── Quiz ──────────────────────────────────────────────────────────── #
+    # Telegram poll open_period in seconds (15–20 s is the recommended range).
+    # Set QUIZ_OPEN_PERIOD=0 to disable the timer (polls stay open until answered).
+    quiz_open_period: int = 20
+
+    # Grammar channel — the Telegram channel that stores grammar lesson messages.
+    # Set GRAMMAR_CHANNEL_ID=-100xxxxxxxxxx in .env (negative for supergroups/channels).
+    # 0 means "not configured" — the bot will show a clean error to the user.
+    grammar_channel_id: int = 0
+
+    # Grammar quiz configuration.
+    # GRAMMAR_QUIZ_QUESTIONS — number of questions per grammar quiz session.
+    # GRAMMAR_QUIZ_TIME_SECONDS — Telegram poll open_period in seconds.
+    # Both are clamped in GrammarService / the handler.
+    grammar_quiz_questions: int = 5
+    grammar_quiz_time_seconds: int = 20
+
+    # Number of questions generated for a Vocabulary quiz.
+    # Clamped to [2, 10] in QuizService.  Auto-reduced if the user
+    # has fewer saved words than this value — never fabricates questions.
+    # Override with QUIZ_VOCABULARY_QUESTIONS=5 in .env.
+    quiz_vocabulary_questions: int = 5
+
     # ── Broadcast ─────────────────────────────────────────────────────── #
     broadcast_delay_ms: int = 50
 

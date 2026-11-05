@@ -11,11 +11,11 @@ import asyncio
 import random
 
 from app.core.enums import DifficultyLevel
-from app.services.ai.base import AIProvider
+from app.services.ai.base import MnemonicProvider
 from app.services.ai.schemas import MnemonicResult
 
 
-class MockProvider(AIProvider):
+class MockProvider(MnemonicProvider):
     """Produces a clearly-labeled, deterministic-shape mnemonic without any network access."""
 
     @property

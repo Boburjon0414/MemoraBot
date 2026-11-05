@@ -11,7 +11,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.base import Base
 
 if TYPE_CHECKING:
+    from app.database.models.content_source import ContentSource  # Step 5
+    from app.database.models.feature_output import FeatureOutput  # Step 7
+    from app.database.models.learning_activity import LearningActivity
     from app.database.models.mnemonic_history import MnemonicHistory
+    from app.database.models.user_memory import UserMemory           # Step 8
     from app.database.models.user_settings import UserSettings
     from app.database.models.vocabulary import VocabularyEntry  # V1.6
 
@@ -40,6 +44,18 @@ class User(Base):
     )
     vocabulary_entries: Mapped[list["VocabularyEntry"]] = relationship(  # V1.6
         back_populates="user", cascade="all, delete-orphan"
+    )
+    learning_activities: Mapped[list["LearningActivity"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    content_sources: Mapped[list["ContentSource"]] = relationship(  # Step 5
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    feature_outputs: Mapped[list["FeatureOutput"]] = relationship(  # Step 7
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    memory: Mapped["UserMemory | None"] = relationship(             # Step 8
+        back_populates="user", cascade="all, delete-orphan", uselist=False
     )
 
     def __repr__(self) -> str:  # pragma: no cover - debugging helper only

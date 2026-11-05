@@ -30,7 +30,7 @@ import logging
 import aiohttp
 
 from app.core.exceptions import AIProviderError
-from app.services.ai.base import AIProvider
+from app.services.ai.base import MnemonicProvider
 from app.services.ai.knowledge_engine.exceptions import KnowledgeEngineError
 from app.services.ai.mnemonic_prompt import build_mnemonic_prompt
 from app.services.ai.schemas import MnemonicResult
@@ -82,7 +82,7 @@ def _strip_markdown_fences(text: str) -> str:
     return stripped.strip()
 
 
-class GeminiProvider(AIProvider):
+class GeminiProvider(MnemonicProvider):
     """Generates mnemonics using a Gemini model via the `generateContent` REST endpoint."""
 
     def __init__(self, api_key: str, model: str, prompt_version: str = "v1") -> None:

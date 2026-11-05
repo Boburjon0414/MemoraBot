@@ -21,9 +21,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from app.core.exceptions import AIProviderError
+from app.database.models.learning_activity import ActivityType
 from app.handlers.dashboard import edit_to_dashboard
 from app.keyboards.callback_data import DashboardCallback, MneVocaCallback, MnemonicRatingCallback
 from app.keyboards.mnevoca_kb import get_mnevoca_entry_keyboard, get_mnevoca_result_keyboard
+from app.services.activity_service import ActivityService
 from app.services.mnemonic_feedback_service import MnemonicFeedbackService
 from app.services.mnemonic_service import MnemonicService
 from app.services.settings_service import SettingsService
@@ -76,6 +78,7 @@ async def process_word(
     feedback_service: MnemonicFeedbackService,
     usage_service: UsageService,
     vocabulary_service: VocabularyService,  # V1.6: auto-save
+    activity_service: ActivityService,       # Step 1: event log
 ) -> None:
     """Generate (or serve from the library) and send a mnemonic for the typed word."""
     word = message.text.strip()
@@ -123,7 +126,25 @@ async def process_word(
     # V1.6: Auto-save to personal vocabulary.
     # Idempotent: creates on first lookup, detects system upgrades on repeat
     # lookups, ignores manual regenerations (same prompt_version).
-    await vocabulary_service.save_from_mnemonic(user_id=user.id, mnemonic=entry)
+    vocab_entry = await vocabulary_service.save_from_mnemonic(user_id=user.id, mnemonic=entry)
+
+    # Step 1: Record learning activity events.
+    # Both calls are fire-and-forget: failures are logged as warnings and
+    # never interrupt the primary mnemonic flow.
+    await activity_service.record(
+        user.id,
+        ActivityType.MNEMONIC_GENERATED,
+        mnemonic_id=entry.id,
+        metadata={"word": entry.word, "was_cache_hit": not would_generate},
+    )
+    if vocab_entry is not None:
+        await activity_service.record(
+            user.id,
+            ActivityType.VOCABULARY_SAVED,
+            mnemonic_id=entry.id,
+            vocabulary_entry_id=vocab_entry.id,
+            metadata={"word": entry.word},
+        )
 
 @router.message(MneVocaStates.waiting_for_word)
 async def process_word_invalid_type(message: Message, settings_service: SettingsService) -> None:

@@ -21,7 +21,7 @@ from typing import Sequence
 from app.core.exceptions import AIProviderError
 from app.database.models.mnemonic_history import MnemonicHistory
 from app.repositories.mnemonic_repository import MnemonicRepository
-from app.services.ai.base import AIProvider
+from app.services.ai.base import MnemonicProvider
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ _REGENERATION_DEACTIVATION_THRESHOLD = 3
 class MnemonicService:
     """Generates, serves, and manages the lifecycle of mnemonic versions."""
 
-    def __init__(self, provider: AIProvider, mnemonic_repo: MnemonicRepository) -> None:
+    def __init__(self, provider: MnemonicProvider, mnemonic_repo: MnemonicRepository) -> None:
         self._provider = provider
         self._mnemonic_repo = mnemonic_repo
 

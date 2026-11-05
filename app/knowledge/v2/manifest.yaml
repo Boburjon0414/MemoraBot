@@ -1,0 +1,26 @@
+# Which knowledge documents are assembled into every generation request,
+# in this exact order, versus which are reference-only. See
+# PROMPT_FRAMEWORK.md (carried over from v1, still applies) for the full
+# reasoning behind this split.
+version: v2
+description: "MemoraBot mnemonic knowledge base V2 — Constitution, Style, Phonetic Engine, Prompt Rules, Response Spec, Examples"
+
+# Loaded, validated, and concatenated in this order for EVERY request.
+# (user_prompt.md and regenerate_avoid.md are intentionally NOT listed here
+# — they're request-specific templates loaded separately by
+# app/services/ai/mnemonic_prompt.py, not part of the always-static set.)
+prompt_components:
+  - CONSTITUTION.md
+  - STYLE_GUIDE.md
+  - PHONETIC_ENGINE.md
+  - PROMPT_RULES.md
+  - RESPONSE_SPECIFICATION.md
+  - EXAMPLES.md
+
+# Tracked for documentation only — nothing reads this list programmatically.
+# These inform the files above but are not retransmitted on every request.
+reference_only:
+  - PHILOSOPHY.md
+  - MEMORY_SCIENCE.md
+  - EVALUATION_GUIDE.md
+  - TEST_CASES.md
